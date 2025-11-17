@@ -1,0 +1,9 @@
+{
+  "home": {
+    "title": "Tus Hábitos"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "logout": "Cerrar sesión"
+  }
+}

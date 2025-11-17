@@ -1,0 +1,9 @@
+{
+  "home": {
+    "title": "Your Habits"
+  },
+  "settings": {
+    "title": "Settings",
+    "logout": "Logout"
+  }
+}
