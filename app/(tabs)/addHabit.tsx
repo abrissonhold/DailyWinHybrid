@@ -34,7 +34,6 @@ const validationSchema = Yup.object().shape({
   additionalGoal: Yup.string(),
 });
 
-// Interfaz para los valores del formulario
 interface HabitFormValues extends NewHabitInput {
   imageUri?: string;
   location?: string;
@@ -133,10 +132,9 @@ const AddHabitScreen = () => {
     try {
       const [hours, minutes] = time.split(':').map(Number);
 
-      // Para notificaciones diarias recurrentes, usamos DAILY trigger
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: '⏰ Recordatorio de hábito',
+          title: 'Recordatorio de hábito',
           body: `Es hora de: ${habitName}`,
           data: { habitName },
         },

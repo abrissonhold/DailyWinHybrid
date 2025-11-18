@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../services/firebase';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Habit } from '../../../../types/habits';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Required'),
@@ -14,21 +15,25 @@ const validationSchema = Yup.object().shape({
 
 const EditHabitScreen = () => {
   const { id } = useLocalSearchParams();
-  const [initialValues, setInitialValues] = useState(null);
+  const [initialValues, setInitialValues] = useState<Habit | null>(null);
+
+  const habitId = Array.isArray(id) ? id[0] : id;
 
   useEffect(() => {
-    if (!id) return;
+    if (!habitId) return;
 
-    const docRef = doc(db, 'habits', id);
+    const docRef = doc(db, 'habits', habitId);
     getDoc(docRef).then((docSnap) => {
       if (docSnap.exists()) {
-        setInitialValues(docSnap.data());
+        setInitialValues(docSnap.data() as Habit);
       }
     });
-  }, [id]);
+  }, [habitId]);
 
-  const handleUpdateHabit = (values) => {
-    updateDoc(doc(db, 'habits', id), values)
+  const handleUpdateHabit = (values: Habit) => {
+    if (!habitId) return;
+    // Spread the values into a new object to satisfy the Firestore type
+    updateDoc(doc(db, 'habits', habitId), { ...values })
       .then(() => {
         router.back();
       })
@@ -79,7 +84,7 @@ const EditHabitScreen = () => {
               value={values.frequency}
             />
             {touched.frequency && errors.frequency && <Text style={styles.errorText}>{errors.frequency}</Text>}
-            <Button onPress={handleSubmit} title="Update Habit" />
+            <Button onPress={() => handleSubmit()} title="Update Habit" />
           </>
         )}
       </Formik>

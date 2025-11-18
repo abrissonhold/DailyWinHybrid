@@ -1,12 +1,35 @@
+import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import React, { createContext, useContext, ReactNode } from 'react';
+import { COLORS } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 
 interface ThemeContextType {
   colorScheme: string;
   setTheme: (theme: string) => void;
+  theme: typeof lightTheme;
 }
+
+const lightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: COLORS.light.background,
+    card: COLORS.light.card,
+    text: COLORS.light.text,
+    primary: COLORS.primary,
+  },
+};
+
+const darkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: COLORS.dark.background,
+    card: COLORS.dark.card,
+    text: COLORS.dark.text,
+    primary: COLORS.primary,
+  },
+};
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
@@ -24,11 +47,12 @@ interface ThemeProviderProps {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const { colorScheme, setTheme } = useTheme();
-  const navigationTheme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+  const activeScheme = colorScheme ?? 'light';
+  const theme = activeScheme === 'dark' ? darkTheme : lightTheme;
 
   return (
-    <ThemeContext.Provider value={{ colorScheme, setTheme }}>
-      <NavThemeProvider value={navigationTheme}>
+    <ThemeContext.Provider value={{ colorScheme: activeScheme, setTheme, theme }}>
+      <NavThemeProvider value={theme}>
         {children}
       </NavThemeProvider>
     </ThemeContext.Provider>

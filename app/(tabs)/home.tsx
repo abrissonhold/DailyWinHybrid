@@ -6,18 +6,21 @@ import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
-  Image,
   RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { Theme } from '@react-navigation/native';
+import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
 import { Frequency, Habit, Priority, formatDate, isCompletedToday } from '../../types/habits';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
+  const { theme } = useThemeContext();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const userId = auth.currentUser?.uid;
@@ -53,7 +56,6 @@ const HomeScreen = () => {
         } as Habit);
       });
 
-      // Ordenar por prioridad y racha
       habitsData.sort((a, b) => {
         const priorityOrder = { [Priority.HIGH]: 3, [Priority.MEDIUM]: 2, [Priority.LOW]: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
@@ -67,7 +69,6 @@ const HomeScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // La sincronización es automática con onSnapshot
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -79,21 +80,18 @@ const HomeScreen = () => {
       const habitRef = doc(db, 'habits', habit.id);
 
       if (isCompleted) {
-        // Desmarcar como completado
         const updatedDates = habit.completedDates.filter(date => date !== today);
         await updateDoc(habitRef, {
           completedDates: updatedDates,
           streak: Math.max(0, habit.streak - 1)
         });
       } else {
-        // Marcar como completado
         const updatedDates = [...habit.completedDates, today];
         await updateDoc(habitRef, {
           completedDates: updatedDates,
           streak: habit.streak + 1
         });
 
-        // Feedback visual
         Alert.alert('¡Bien hecho! 🎉', `Has completado "${habit.name}"`);
       }
     } catch (error) {
@@ -111,24 +109,6 @@ const HomeScreen = () => {
     }
   };
 
-  const getPriorityLabel = (priority: Priority): string => {
-    switch (priority) {
-      case Priority.HIGH: return 'Alta';
-      case Priority.MEDIUM: return 'Media';
-      case Priority.LOW: return 'Baja';
-      default: return '';
-    }
-  };
-
-  const getFrequencyLabel = (frequency: Frequency): string => {
-    switch (frequency) {
-      case Frequency.DAILY: return 'Diario';
-      case Frequency.WEEKLY: return 'Semanal';
-      case Frequency.MONTHLY: return 'Mensual';
-      default: return '';
-    }
-  };
-
   const getTodayProgress = (): { completed: number; total: number } => {
     const today = formatDate(new Date());
     const completed = habits.filter(h => h.completedDates.includes(today)).length;
@@ -138,77 +118,49 @@ const HomeScreen = () => {
   const renderHabitCard = ({ item }: { item: Habit }) => {
     const completed = isCompletedToday(item);
     const priorityColor = getPriorityColor(item.priority);
+    const styles = themedStyles(theme);
 
     return (
       <TouchableOpacity
         style={[
           styles.habitCard,
           completed && styles.habitCardCompleted,
-          { borderLeftColor: priorityColor }
         ]}
         onPress={() => router.push(`/(tabs)/habit/${item.id}`)}
-        activeOpacity={0.7}
+        activeOpacity={0.8}
       >
-        <View style={styles.habitHeader}>
-          <View style={styles.habitInfo}>
-            {item.imageUri ? (
-              <Image source={{ uri: item.imageUri }} style={styles.habitImage} />
-            ) : (
-              <View style={[styles.habitIconPlaceholder, { backgroundColor: priorityColor }]}>
-                <Text style={styles.habitIconText}>
-                  {item.name.substring(0, 2).toUpperCase()}
-                </Text>
-              </View>
-            )}
-
-            <View style={styles.habitDetails}>
-              <Text style={[styles.habitName, completed && styles.habitNameCompleted]}>
-                {item.name}
-              </Text>
-              <View style={styles.habitMeta}>
-                <Text style={styles.habitCategory}>📁 {item.category}</Text>
-                <Text style={styles.habitFrequency}>🔁 {getFrequencyLabel(item.frequency)}</Text>
-              </View>
+        <View style={styles.habitInfoContainer}>
+          <View style={[styles.habitIcon, { backgroundColor: priorityColor }]}>
+            <Text style={styles.habitIconText}>{item.name.charAt(0)}</Text>
+          </View>
+          <View style={styles.habitDetails}>
+            <Text style={[styles.habitName, completed && styles.habitNameCompleted]}>
+              {item.name}
+            </Text>
+            <View style={styles.habitMeta}>
+              <Text style={styles.habitMetaText}>Hábito</Text>
+              {item.time && (
+                <>
+                  <Text style={styles.habitMetaDot}>•</Text>
+                  <Text style={styles.habitMetaText}>{item.time}</Text>
+                </>
+              )}
+              {item.streak > 0 && (
+                 <>
+                  <Text style={styles.habitMetaDot}>•</Text>
+                  <Ionicons name="flame" size={14} color="#FF6B6B" />
+                  <Text style={styles.habitMetaText}>{item.streak}</Text>
+                </>
+              )}
             </View>
           </View>
-
-          <TouchableOpacity
-            style={styles.checkButton}
-            onPress={() => toggleHabitCompletion(item)}
-          >
-            <Ionicons
-              name={completed ? "checkmark-circle" : "ellipse-outline"}
-              size={32}
-              color={completed ? "#4CAF50" : "#ccc"}
-            />
-          </TouchableOpacity>
         </View>
-
-        <View style={styles.habitFooter}>
-          <View style={styles.habitStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>🔥 {item.streak}</Text>
-              <Text style={styles.statLabel}>Racha</Text>
-            </View>
-
-            {item.time && (
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>⏰ {item.time}</Text>
-                <Text style={styles.statLabel}>Hora</Text>
-              </View>
-            )}
-
-            <View style={styles.statItem}>
-              <View style={[styles.priorityBadge, { backgroundColor: priorityColor }]}>
-                <Text style={styles.priorityText}>{getPriorityLabel(item.priority)}</Text>
-              </View>
-            </View>
-          </View>
-
-          {item.dailyGoal && (
-            <Text style={styles.habitGoal}>🎯 {item.dailyGoal}</Text>
-          )}
-        </View>
+        <TouchableOpacity
+          style={[styles.checkButton, completed && styles.checkButtonCompleted]}
+          onPress={() => toggleHabitCompletion(item)}
+        >
+          {completed && <Ionicons name="checkmark" size={20} color={theme.colors.card} />}
+        </TouchableOpacity>
       </TouchableOpacity>
     );
   };
@@ -217,35 +169,52 @@ const HomeScreen = () => {
   const progressPercentage = habits.length > 0
     ? Math.round((progress.completed / progress.total) * 100)
     : 0;
+  const styles = themedStyles(theme);
 
   return (
     <View style={styles.container}>
-      {/* Header con progreso */}
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>{t('home.title')}</Text>
-        <Text style={styles.greeting}>
-          {new Date().getHours() < 12 ? '🌅' : new Date().getHours() < 18 ? '☀️' : '🌙'}
-          {' '}Bienvenido de vuelta
-        </Text>
+        <View style={styles.headerTop}>
+            <Text style={styles.headerTitle}>{t('home.title')}</Text>
+        </View>
+        <View style={styles.headerIcons}>
+            <Text
+                style={styles.headerButton}
+            >
+                {t(`Hola ${auth.currentUser?.email || 'Usuario'}`)}
+            </Text>
+        </View>
       </View>
 
-      {/* Progreso del día */}
+      {/* Progress Section */}
       {habits.length > 0 && (
-        <View style={styles.progressContainer}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Progreso de hoy</Text>
-            <Text style={styles.progressValue}>{progress.completed}/{progress.total}</Text>
+          <View style={styles.progressSection}>
+              <View style={styles.progressCircleContainer}>
+                  <AnimatedCircularProgress
+                      size={80}
+                      width={8}
+                      fill={progressPercentage}
+                      tintColor={theme.colors.primary}
+                      backgroundColor={theme.colors.border}
+                      padding={10}
+                      rotation={0}
+                      lineCap="round"
+                  >
+                      {
+                          (fill: number) => (
+                              <Text style={styles.progressText}>
+                                  {`${Math.round(fill)}%`}
+                              </Text>
+                          )
+                      }
+                  </AnimatedCircularProgress>
+              </View>
+              <View style={styles.progressInfo}>
+                  <Text style={styles.progressInfoTitle}>{t('Continua así')}</Text>
+                  <Text style={styles.progressInfoText}>{t(`Completaste ${progress.completed} de ${progress.total} hábitos`)}</Text>
+              </View>
           </View>
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                { width: `${progressPercentage}%` }
-              ]}
-            />
-          </View>
-          <Text style={styles.progressPercentage}>{progressPercentage}% completado</Text>
-        </View>
       )}
 
       {/* Lista de hábitos */}
@@ -270,135 +239,123 @@ const HomeScreen = () => {
         </View>
       )}
 
-      {/* Botón flotante para agregar */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => router.push('/(tabs)/addHabit')}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const themedStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   header: {
-    backgroundColor: '#fff',
-    padding: 20,
-    paddingTop: 40,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    paddingTop: 50,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    backgroundColor: theme.colors.card,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  greeting: {
-    fontSize: 16,
-    color: '#666',
-  },
-  progressContainer: {
-    backgroundColor: '#fff',
-    margin: 16,
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  progressHeader: {
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerButton: {
+    padding: 4,
+  },
+  progressSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  progressCircleContainer: {
+    marginRight: 16,
+  },
+  progressText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.primary,
+  },
+  progressInfo: {
+    flex: 1,
+  },
+  progressInfoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+    marginBottom: 4,
+  },
+  progressInfoText: {
+    fontSize: 14,
+    color: theme.colors.text,
     marginBottom: 12,
   },
-  progressTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+  progressButton: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
   },
-  progressValue: {
-    fontSize: 20,
+  progressButtonText: {
+    color: theme.colors.card,
     fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  progressBarContainer: {
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 4,
-  },
-  progressPercentage: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
     paddingBottom: 80,
   },
   habitCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.card,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    borderLeftWidth: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   habitCardCompleted: {
-    opacity: 0.8,
-    backgroundColor: '#f0f9f0',
+    backgroundColor: theme.colors.border,
   },
-  habitHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  habitInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  habitInfoContainer: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  habitImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 12,
-  },
-  habitIconPlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 12,
+  habitIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 16,
   },
   habitIconText: {
-    color: '#fff',
+    color: theme.colors.card,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -406,68 +363,41 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   habitName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text,
   },
   habitNameCompleted: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: theme.colors.text,
   },
   habitMeta: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
+    marginTop: 4,
   },
-  habitCategory: {
-    fontSize: 12,
-    color: '#666',
+  habitMetaText: {
+    fontSize: 14,
+    color: theme.colors.text,
+    marginRight: 4,
   },
-  habitFrequency: {
-    fontSize: 12,
-    color: '#666',
+  habitMetaDot: {
+    fontSize: 14,
+    color: theme.colors.border,
+    marginHorizontal: 4,
   },
   checkButton: {
-    padding: 4,
-  },
-  habitFooter: {
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 12,
-  },
-  habitStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 8,
-  },
-  statItem: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  statValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  statLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginTop: 2,
-  },
-  priorityBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  priorityText: {
-    fontSize: 11,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  habitGoal: {
-    fontSize: 12,
-    color: '#666',
-    fontStyle: 'italic',
-    textAlign: 'center',
+  checkButtonCompleted: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
   },
   emptyContainer: {
     flex: 1,
@@ -482,31 +412,15 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: theme.colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.text,
     textAlign: 'center',
     lineHeight: 24,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#007bff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
 });
 
