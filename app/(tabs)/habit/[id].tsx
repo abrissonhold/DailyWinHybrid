@@ -1,83 +1,225 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { doc, getDoc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Appbar, Button, Card, Chip, Divider, FAB, Title, MD3Theme } from 'react-native-paper';
+import { useThemeContext } from '../../../context/ThemeProvider';
 import { db } from '../../../services/firebase';
+import { Habit, isCompletedToday, markAsCompleted, unmarkCompleted } from '../../../types/habits';
+
+type InfoRowProps = {
+  icon: any;
+  label: string;
+  value: string;
+};
+
+const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => {
+  const { paperTheme } = useThemeContext();
+  const styles = createStyles(paperTheme);
+  return (
+    <View style={styles.infoRow}>
+      <MaterialCommunityIcons name={icon} size={24} color={paperTheme.colors.primary} style={styles.infoIcon} />
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={styles.infoValue}>{value}</Text>
+    </View>
+  );
+};
 
 const HabitDetailScreen = () => {
   const { id } = useLocalSearchParams();
-  const [habit, setHabit] = useState(null);
+  const { paperTheme } = useThemeContext();
+  const styles = createStyles(paperTheme);
+  const [habit, setHabit] = useState<Habit | null>(null);
+
+  const habitId = Array.isArray(id) ? id[0] : id;
 
   useEffect(() => {
-    if (!id) return;
+    if (!habitId) return;
 
-    const docRef = doc(db, 'habits', id);
-    getDoc(docRef).then((docSnap) => {
+    const docRef = doc(db, 'habits', habitId);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        setHabit(docSnap.data());
+        setHabit({ id: docSnap.id, ...docSnap.data() } as Habit);
+      } else {
+        Alert.alert('Error', 'Habit not found.');
+        router.back();
       }
     });
-  }, [id]);
+
+    return () => unsubscribe();
+  }, [habitId]);
 
   const handleDelete = () => {
-    deleteDoc(doc(db, 'habits', id))
-      .then(() => {
-        router.back();
-      })
-      .catch((error) => {
-        Alert.alert('Error', error.message);
-      });
+    if (!habitId) return;
+    Alert.alert(
+      "Delete Habit",
+      "Are you sure you want to delete this habit?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          onPress: () => {
+            deleteDoc(doc(db, 'habits', habitId))
+              .then(() => router.back())
+              .catch((error) => Alert.alert('Error', error.message));
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
-  const handleMarkAsCompleted = () => {
-    const today = new Date().toISOString().slice(0, 10); // Get date in YYYY-MM-DD format
-    updateDoc(doc(db, 'habits', id), {
-      completedDates: arrayUnion(today),
-    })
-      .then(() => {
-        Alert.alert('Success', 'Habit marked as completed for today!');
-      })
-      .catch((error) => {
-        Alert.alert('Error', error.message);
-      });
+  const handleToggleCompletion = () => {
+    if (!habit) return;
+    const updatedHabit = isCompletedToday(habit)
+      ? unmarkCompleted(habit)
+      : markAsCompleted(habit);
+
+    updateDoc(doc(db, 'habits', habit.id), {
+      completedDates: updatedHabit.completedDates,
+      streak: updatedHabit.streak,
+    });
   };
 
   if (!habit) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.Content title="Loading..." />
+        </Appbar.Header>
       </View>
     );
   }
 
+  const isCompleted = isCompletedToday(habit);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{habit.name}</Text>
-      <Text>Category: {habit.category}</Text>
-      <Text>Frequency: {habit.frequency}</Text>
-      <Button title="Mark as Completed for Today" onPress={handleMarkAsCompleted} />
-      <View style={styles.buttons}>
-        <Button title="Edit" onPress={() => router.push(`/(tabs)/habit/edit/${id}`)} />
-        <Button title="Delete" onPress={handleDelete} color="red" />
-      </View>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={habit.name} />
+        <Appbar.Action icon="delete" onPress={handleDelete} />
+      </Appbar.Header>
+
+      <ScrollView contentContainerStyle={styles.content}>
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.title}>{habit.name}</Title>
+            <Chip
+              icon="tag-outline"
+              style={styles.chip}
+              textStyle={styles.chipText}
+            >
+              {habit.category}
+            </Chip>
+
+            {habit.description && (
+              <Text style={styles.description}>{habit.description}</Text>
+            )}
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Title title="Details" />
+          <Card.Content>
+            <InfoRow icon="flag-outline" label="Priority" value={habit.priority} />
+            <Divider style={styles.divider} />
+            <InfoRow icon="calendar-repeat-outline" label="Frequency" value={habit.frequency} />
+            <Divider style={styles.divider} />
+            <InfoRow icon="clock-outline" label="Time" value={habit.time || 'Not set'} />
+            <Divider style={styles.divider} />
+            <InfoRow icon="calendar-check-outline" label="Start Date" value={habit.startDate} />
+            <Divider style={styles.divider} />
+            <InfoRow icon="flag-checkered" label="End Date" value={habit.endDate} />
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Title title="Goals" />
+          <Card.Content>
+            <InfoRow icon="trophy-outline" label="Daily Goal" value={habit.dailyGoal || 'Not set'} />
+            <Divider style={styles.divider} />
+            <InfoRow icon="trophy-award-outline" label="Additional Goal" value={habit.additionalGoal || 'Not set'} />
+          </Card.Content>
+        </Card>
+
+        <Button
+          mode={isCompleted ? "contained" : "outlined"}
+          onPress={handleToggleCompletion}
+          style={styles.completeButton}
+          icon={isCompleted ? "check-circle" : "circle-outline"}
+        >
+          {isCompleted ? "Completed Today" : "Mark as Completed"}
+        </Button>
+      </ScrollView>
+
+      <FAB
+        icon="pencil"
+        style={styles.fab}
+        onPress={() => router.push(`/(tabs)/habit/edit/${habitId}`)}
+      />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: MD3Theme) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  content: {
     padding: 16,
+  },
+  card: {
+    marginBottom: 16,
   },
   title: {
     fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  buttons: {
-    marginTop: 16,
+  chip: {
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  chipText: {
+    fontSize: 14,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  divider: {
+    marginVertical: 8,
+  },
+  infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  infoIcon: {
+    marginRight: 16,
+  },
+  infoLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  infoValue: {
+    fontSize: 16,
+  },
+  completeButton: {
+    marginTop: 16,
+    paddingVertical: 8,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: theme.colors.primary,
   },
 });
 

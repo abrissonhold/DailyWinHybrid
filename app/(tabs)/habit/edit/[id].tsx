@@ -1,119 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Alert, View, Text } from 'react-native';
+import { HabitForm } from '../../../../components/HabitForm';
 import { db } from '../../../../services/firebase';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { Habit } from '../../../../types/habits';
-
-const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Required'),
-  category: Yup.string().required('Required'),
-  frequency: Yup.string().required('Required'),
-});
 
 const EditHabitScreen = () => {
   const { id } = useLocalSearchParams();
-  const [initialValues, setInitialValues] = useState<Habit | null>(null);
-
-  const habitId = Array.isArray(id) ? id[0] : id;
+  const [habit, setHabit] = useState<Habit | null>(null);
 
   useEffect(() => {
-    if (!habitId) return;
-
-    const docRef = doc(db, 'habits', habitId);
-    getDoc(docRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        setInitialValues(docSnap.data() as Habit);
-      }
-    });
-  }, [habitId]);
-
-  const handleUpdateHabit = (values: Habit) => {
-    if (!habitId) return;
-    // Spread the values into a new object to satisfy the Firestore type
-    updateDoc(doc(db, 'habits', habitId), { ...values })
-      .then(() => {
-        router.back();
-      })
-      .catch((error) => {
-        Alert.alert('Error', error.message);
+    if (id) {
+      const habitRef = doc(db, 'habits', id as string);
+      getDoc(habitRef).then(docSnap => {
+        if (docSnap.exists()) {
+          setHabit({ id: docSnap.id, ...docSnap.data() } as Habit);
+        } else {
+          Alert.alert('Error', 'No se encontró el hábito.');
+        }
       });
+    }
+  }, [id]);
+
+  const handleSave = async (habitData: Partial<Habit>) => {
+    if (!id) return;
+    try {
+      const habitRef = doc(db, 'habits', id as string);
+      await updateDoc(habitRef, habitData);
+      Alert.alert('Éxito', 'Hábito actualizado correctamente.', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
+    } catch (error) {
+        if (error instanceof Error) {
+            Alert.alert('Error', error.message);
+        } else {
+            Alert.alert('Error', 'An unknown error occurred.');
+        }
+    }
   };
 
-  if (!initialValues) {
+  const handleCancel = () => {
+    router.back();
+  };
+
+  if (!habit) {
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
+      <View>
+        <Text>Cargando hábito...</Text>
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Edit Habit</Text>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleUpdateHabit}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <>
-            <TextInput
-              style={styles.input}
-              placeholder="Habit Name"
-              onChangeText={handleChange('name')}
-              onBlur={handleBlur('name')}
-              value={values.name}
-            />
-            {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-            <TextInput
-              style={styles.input}
-              placeholder="Category"
-              onChangeText={handleChange('category')}
-              onBlur={handleBlur('category')}
-              value={values.category}
-            />
-            {touched.category && errors.category && <Text style={styles.errorText}>{errors.category}</Text>}
-            <TextInput
-              style={styles.input}
-              placeholder="Frequency"
-              onChangeText={handleChange('frequency')}
-              onBlur={handleBlur('frequency')}
-              value={values.frequency}
-            />
-            {touched.frequency && errors.frequency && <Text style={styles.errorText}>{errors.frequency}</Text>}
-            <Button onPress={() => handleSubmit()} title="Update Habit" />
-          </>
-        )}
-      </Formik>
-    </View>
-  );
+  return <HabitForm habit={habit} onSave={handleSave} onCancel={handleCancel} />;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-  },
-  errorText: {
-    fontSize: 12,
-    color: 'red',
-    marginBottom: 8,
-  },
-});
 
 export default EditHabitScreen;

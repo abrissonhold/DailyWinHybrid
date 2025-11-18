@@ -2,8 +2,10 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
+import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
 import { Habit } from '../../types/habits';
+import { Theme } from '@react-navigation/native';
 
 interface MarkedDates {
   [date: string]: {
@@ -11,7 +13,7 @@ interface MarkedDates {
     dotColor?: string;
     selected?: boolean;
     selectedColor?: string;
-    dots?: Array<{ color: string; key: string }>;
+    dots?: { color: string; key: string }[];
   };
 }
 
@@ -22,6 +24,8 @@ interface HabitsByDate {
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE'];
 
 const CalendarScreen = () => {
+  const { navTheme } = useThemeContext();
+  const styles = themedStyles(navTheme);
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [habitsByDate, setHabitsByDate] = useState<HabitsByDate>({});
@@ -43,13 +47,11 @@ const CalendarScreen = () => {
         
         if (habit.completedDates && habit.completedDates.length > 0) {
           habit.completedDates.forEach((date: string) => {
-            // Inicializar el array de hábitos para esta fecha si no existe
             if (!newHabitsByDate[date]) {
               newHabitsByDate[date] = [];
             }
             newHabitsByDate[date].push(habit);
 
-            // Crear o actualizar el marcado en el calendario
             if (!newMarkedDates[date]) {
               newMarkedDates[date] = {
                 marked: true,
@@ -57,7 +59,6 @@ const CalendarScreen = () => {
               };
             }
             
-            // Agregar un punto de color para cada hábito
             const colorIndex = habits.indexOf(habit) % COLORS.length;
             newMarkedDates[date].dots?.push({
               color: COLORS[colorIndex],
@@ -79,10 +80,8 @@ const CalendarScreen = () => {
     const dateString = day.dateString;
     setSelectedDate(dateString);
 
-    // Actualizar la selección visual
     const updatedMarkedDates = { ...markedDates };
     
-    // Remover selección anterior
     Object.keys(updatedMarkedDates).forEach(key => {
       if (updatedMarkedDates[key].selected) {
         updatedMarkedDates[key].selected = false;
@@ -90,12 +89,11 @@ const CalendarScreen = () => {
       }
     });
 
-    // Agregar nueva selección
     if (!updatedMarkedDates[dateString]) {
       updatedMarkedDates[dateString] = {};
     }
     updatedMarkedDates[dateString].selected = true;
-    updatedMarkedDates[dateString].selectedColor = '#00adf5';
+    updatedMarkedDates[dateString].selectedColor = navTheme.colors.primary;
 
     setMarkedDates(updatedMarkedDates);
   };
@@ -134,10 +132,12 @@ const CalendarScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       <Text style={styles.title}>Tu Calendario</Text>
 
-      {/* Estadísticas */}
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
           <Text style={styles.statNumber}>{allHabits.length}</Text>
@@ -148,29 +148,31 @@ const CalendarScreen = () => {
           <Text style={styles.statLabel}>Días completados</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statNumber}>🔥 {getCurrentStreak()}</Text>
+          <Text style={styles.statNumber}> {getCurrentStreak()}</Text>
           <Text style={styles.statLabel}>Racha actual</Text>
         </View>
       </View>
 
-      {/* Calendario */}
       <Calendar
         markedDates={markedDates}
         onDayPress={handleDayPress}
         markingType="multi-dot"
         theme={{
-          todayTextColor: '#00adf5',
-          selectedDayBackgroundColor: '#00adf5',
+          calendarBackground: navTheme.colors.card,
+          todayTextColor: navTheme.colors.primary,
+          selectedDayBackgroundColor: navTheme.colors.primary,
           selectedDayTextColor: '#ffffff',
-          arrowColor: '#00adf5',
-          monthTextColor: '#333',
+          arrowColor: navTheme.colors.primary,
+          monthTextColor: navTheme.colors.text,
           textMonthFontWeight: 'bold',
           textMonthFontSize: 18,
-          textDayFontSize: 16,
+          dayTextColor: navTheme.colors.text,
+          textDisabledColor: navTheme.colors.border,
+          dotColor: navTheme.colors.primary,
+          selectedDotColor: '#ffffff',
         }}
       />
 
-      {/* Leyenda de colores */}
       {allHabits.length > 0 && (
         <View style={styles.legendContainer}>
           <Text style={styles.legendTitle}>Leyenda de hábitos:</Text>
@@ -188,11 +190,10 @@ const CalendarScreen = () => {
         </View>
       )}
 
-      {/* Hábitos completados en la fecha seleccionada */}
       {selectedDate && (
         <View style={styles.selectedDateContainer}>
           <Text style={styles.selectedDateTitle}>
-            📅 Hábitos del {new Date(selectedDate + 'T00:00:00').toLocaleDateString('es-ES', {
+            Hábitos del {new Date(selectedDate + 'T00:00:00').toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -220,7 +221,6 @@ const CalendarScreen = () => {
         </View>
       )}
 
-      {/* Mensaje si no hay hábitos */}
       {allHabits.length === 0 && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
@@ -235,10 +235,13 @@ const CalendarScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const themedStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
+  },
+    contentContainer: {
+    paddingBottom: 120,
   },
   title: {
     fontSize: 28,
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginTop: 16,
     textAlign: 'center',
-    color: '#333',
+    color: theme.colors.text,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -255,7 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   statBox: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.card,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -269,16 +272,16 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#00adf5',
+    color: theme.colors.primary,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: theme.colors.text,
     textAlign: 'center',
   },
   legendContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.card,
     margin: 16,
     padding: 16,
     borderRadius: 12,
@@ -292,7 +295,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#333',
+    color: theme.colors.text,
   },
   legendItem: {
     flexDirection: 'row',
@@ -307,10 +310,10 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.text,
   },
   selectedDateContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.card,
     margin: 16,
     padding: 16,
     borderRadius: 12,
@@ -324,30 +327,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#333',
+    color: theme.colors.text,
   },
   habitCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.background,
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
     borderLeftWidth: 4,
-    borderLeftColor: '#4ECDC4',
+    borderLeftColor: theme.colors.primary,
   },
   habitCardName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: theme.colors.text,
     marginBottom: 4,
   },
   habitCardCategory: {
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.text,
     marginBottom: 4,
   },
   habitCardStreak: {
     fontSize: 12,
-    color: '#FF6B6B',
+    color: theme.colors.notification,
   },
   noHabitsContainer: {
     padding: 20,
@@ -355,7 +358,7 @@ const styles = StyleSheet.create({
   },
   noHabitsText: {
     fontSize: 14,
-    color: '#999',
+    color: theme.colors.border,
     textAlign: 'center',
   },
   emptyContainer: {
@@ -364,13 +367,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
+    color: theme.colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: theme.colors.border,
     textAlign: 'center',
   },
 });

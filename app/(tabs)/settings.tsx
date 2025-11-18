@@ -1,14 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../services/firebase';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { signOut } from 'firebase/auth';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Alert, Button, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useThemeContext } from '../../context/ThemeProvider';
+import { auth } from '../../services/firebase';
+import { Theme } from '@react-navigation/native';
 
 const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
-  const { colorScheme, setTheme } = useThemeContext();
+  const { colorScheme, setTheme, navTheme } = useThemeContext();
+  const styles = themedStyles(navTheme);
 
   const handleLogout = () => {
     signOut(auth)
@@ -20,51 +23,187 @@ const SettingsScreen = () => {
       });
   };
 
+  type OptionRowProps = {
+    icon: keyof typeof Ionicons.glyphMap;
+    title: string;
+    value?: string;
+    onPress?: () => void;
+    children?: React.ReactNode;
+  };
+
+  const OptionRow: React.FC<OptionRowProps> = ({ icon, title, value, onPress, children }) => (
+    <TouchableOpacity style={styles.optionRow} onPress={onPress} disabled={!onPress}>
+      <View style={styles.optionInfo}>
+        <Ionicons name={icon} size={24} color={navTheme.colors.primary} style={styles.optionIcon} />
+        <Text style={styles.optionTitle}>{title}</Text>
+      </View>
+      {value && <Text style={styles.optionValue}>{value}</Text>}
+      {children}
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t('settings.title')}</Text>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Language</Text>
-        <View style={styles.buttons}>
-          <Button title="English" onPress={() => i18n.changeLanguage('en')} />
-          <Button title="Español" onPress={() => i18n.changeLanguage('es')} />
-          <Button title="Português" onPress={() => i18n.changeLanguage('pt')} />
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.headerButton}>
+          <Ionicons name="menu" size={28} color={navTheme.colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
+        <TouchableOpacity style={styles.headerButton}>
+          <Ionicons name="ellipsis-vertical" size={24} color={navTheme.colors.text} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Theme</Text>
-        <Text>Current theme: {colorScheme}</Text>
-        <View style={styles.buttons}>
-          <Button title="Light" onPress={() => setTheme('light')} />
-          <Button title="Dark" onPress={() => setTheme('dark')} />
+
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>General</Text>
+          <OptionRow icon="person-circle-outline" title="Perfil" onPress={() => { /* Navigate to profile */ }} />
+          <OptionRow icon="notifications-outline" title="Notificaciones" onPress={() => { /* Navigate to notifications */ }} />
         </View>
+
+        <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Apariencia</Text>
+        <OptionRow icon="color-palette-outline" title="Tema">
+          <View style={styles.themeSelector}>
+            <TouchableOpacity
+              style={[styles.themeButton, colorScheme === 'light' && styles.themeButtonActive]}
+              onPress={() => setTheme('light')}
+            >
+              <Text style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>Claro</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.themeButton, colorScheme === 'dark' && styles.themeButtonActive]}
+              onPress={() => setTheme('dark')}
+            >
+              <Text style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>Oscuro</Text>
+            </TouchableOpacity>
+          </View>
+        </OptionRow>
+        <OptionRow icon="language-outline" title="Idioma">
+          <View style={styles.languageSelector}>
+             <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? '#6A1B9A' : '#ccc'} />
+             <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? '#6A1B9A' : '#ccc'} />
+             <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? '#6A1B9A' : '#ccc'} />
+          </View>
+        </OptionRow>
       </View>
-      <Button title={t('settings.logout')} onPress={handleLogout} />
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={22} color="#d829b2ff" />
+          <Text style={styles.logoutButtonText}>{t('settings.logout')}</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const themedStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: theme.colors.background,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 12,
+    backgroundColor: theme.colors.background,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  headerButton: {
+    padding: 8,
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 120,
   },
   section: {
-    marginBottom: 24,
+    marginTop: 20,
+    marginHorizontal: 16,
+    backgroundColor: theme.colors.card,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
-  buttons: {
+  optionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  optionInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  optionIcon: {
+    marginRight: 16,
+  },
+  optionTitle: {
+    fontSize: 16,
+    color: theme.colors.text,
+  },
+  optionValue: {
+    fontSize: 16,
+    color: theme.colors.text,
+  },
+  themeSelector: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.border,
+    borderRadius: 20,
+    padding: 4,
+  },
+  themeButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  themeButtonActive: {
+    backgroundColor: theme.colors.primary,
+  },
+  themeButtonText: {
+    fontSize: 14,
+    color: theme.colors.text,
+    fontWeight: '600',
+  },
+  themeButtonTextActive: {
+    color: theme.colors.card,
+  },
+  languageSelector: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.card,
+    borderRadius: 12,
+    margin: 16,
+    marginTop: 30,
+    padding: 16,
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    color: '#D32F2F',
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
 

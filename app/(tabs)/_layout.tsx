@@ -27,7 +27,7 @@ const AddHabitButton = () => (
 );
 
 export default function TabLayout() {
-    const { theme } = useThemeContext();
+    const { navTheme } = useThemeContext();
 
     return (
         <Tabs
@@ -40,7 +40,7 @@ export default function TabLayout() {
                     left: 20,
                     right: 20,
                     elevation: 0,
-                    backgroundColor: theme.colors.card,
+                    backgroundColor: navTheme.colors.card,
                     borderRadius: 15,
                     height: 70,
                     shadowColor: '#000',
@@ -48,8 +48,8 @@ export default function TabLayout() {
                     shadowOpacity: 0.1,
                     shadowRadius: 10,
                 },
-                tabBarActiveTintColor: theme.colors.primary,
-                tabBarInactiveTintColor: theme.colors.text,
+                tabBarActiveTintColor: navTheme.colors.primary,
+                tabBarInactiveTintColor: navTheme.colors.text,
             }}
         >
             <Tabs.Screen
@@ -101,6 +101,7 @@ export default function TabLayout() {
 
             {/* Hidden screens */}
             <Tabs.Screen name="habit/[id]" options={{ href: null }} />
+            <Tabs.Screen name="habit/edit/[id]" options={{ href: null }} />
         </Tabs>
     );
 }

@@ -51,12 +51,15 @@ async function registerForPushNotificationsAsync(): Promise<string | undefined> 
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
+      // Only alert if on a physical device and permissions are denied.
+      if (Device.isDevice) {
+        alert('Failed to get push token for push notification!');
+      }
       return;
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
   } else {
-    alert('Must use physical device for Push Notifications');
+    console.log('Push notifications are not supported on this simulator/emulator.');
   }
 
   if (Platform.OS === 'android') {

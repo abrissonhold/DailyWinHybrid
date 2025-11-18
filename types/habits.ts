@@ -81,6 +81,12 @@ export const formatDate = (date: Date): string => {
     return `${year}-${month}-${day}`;
 };
 
+export const formatTime = (date: Date): string => {
+    const hours = `${date.getHours()}`.padStart(2, "0");
+    const minutes = `${date.getMinutes()}`.padStart(2, "0");
+    return `${hours}:${minutes}`;
+};
+
 export const parseDate = (dateString: string): Date => {
     return new Date(dateString);
 };

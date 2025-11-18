@@ -20,7 +20,7 @@ import { Frequency, Habit, Priority, formatDate, isCompletedToday } from '../../
 
 const HomeScreen = () => {
   const { t } = useTranslation();
-  const { theme } = useThemeContext();
+  const { navTheme } = useThemeContext();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const userId = auth.currentUser?.uid;
@@ -118,7 +118,7 @@ const HomeScreen = () => {
   const renderHabitCard = ({ item }: { item: Habit }) => {
     const completed = isCompletedToday(item);
     const priorityColor = getPriorityColor(item.priority);
-    const styles = themedStyles(theme);
+    const styles = themedStyles(navTheme);
 
     return (
       <TouchableOpacity
@@ -146,7 +146,7 @@ const HomeScreen = () => {
                 </>
               )}
               {item.streak > 0 && (
-                 <>
+                <>
                   <Text style={styles.habitMetaDot}>•</Text>
                   <Ionicons name="flame" size={14} color="#FF6B6B" />
                   <Text style={styles.habitMetaText}>{item.streak}</Text>
@@ -159,7 +159,7 @@ const HomeScreen = () => {
           style={[styles.checkButton, completed && styles.checkButtonCompleted]}
           onPress={() => toggleHabitCompletion(item)}
         >
-          {completed && <Ionicons name="checkmark" size={20} color={theme.colors.card} />}
+          {completed && <Ionicons name="checkmark" size={20} color={navTheme.colors.card} />}
         </TouchableOpacity>
       </TouchableOpacity>
     );
@@ -169,52 +169,52 @@ const HomeScreen = () => {
   const progressPercentage = habits.length > 0
     ? Math.round((progress.completed / progress.total) * 100)
     : 0;
-  const styles = themedStyles(theme);
+  const styles = themedStyles(navTheme);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-            <Text style={styles.headerTitle}>{t('home.title')}</Text>
+          <Text style={styles.headerTitle}>{t('home.title')}</Text>
         </View>
         <View style={styles.headerIcons}>
-            <Text
-                style={styles.headerButton}
-            >
-                {t(`Hola ${auth.currentUser?.email || 'Usuario'}`)}
-            </Text>
+          <Text
+            style={styles.headerButton}
+          >
+            {t(`Hola ${auth.currentUser?.email || 'Usuario'}`)}
+          </Text>
         </View>
       </View>
 
       {/* Progress Section */}
       {habits.length > 0 && (
-          <View style={styles.progressSection}>
-              <View style={styles.progressCircleContainer}>
-                  <AnimatedCircularProgress
-                      size={80}
-                      width={8}
-                      fill={progressPercentage}
-                      tintColor={theme.colors.primary}
-                      backgroundColor={theme.colors.border}
-                      padding={10}
-                      rotation={0}
-                      lineCap="round"
-                  >
-                      {
-                          (fill: number) => (
-                              <Text style={styles.progressText}>
-                                  {`${Math.round(fill)}%`}
-                              </Text>
-                          )
-                      }
-                  </AnimatedCircularProgress>
-              </View>
-              <View style={styles.progressInfo}>
-                  <Text style={styles.progressInfoTitle}>{t('Continua así')}</Text>
-                  <Text style={styles.progressInfoText}>{t(`Completaste ${progress.completed} de ${progress.total} hábitos`)}</Text>
-              </View>
+        <View style={styles.progressSection}>
+          <View style={styles.progressCircleContainer}>
+            <AnimatedCircularProgress
+              size={80}
+              width={8}
+              fill={progressPercentage}
+              tintColor={navTheme.colors.primary}
+              backgroundColor={navTheme.colors.border}
+              padding={10}
+              rotation={0}
+              lineCap="round"
+            >
+              {
+                (fill: number) => (
+                  <Text style={styles.progressText}>
+                    {`${Math.round(fill)}%`}
+                  </Text>
+                )
+              }
+            </AnimatedCircularProgress>
           </View>
+          <View style={styles.progressInfo}>
+            <Text style={styles.progressInfoTitle}>{t('Continua así')}</Text>
+            <Text style={styles.progressInfoText}>{t(`Completaste ${progress.completed} de ${progress.total} hábitos`)}</Text>
+          </View>
+        </View>
       )}
 
       {/* Lista de hábitos */}
@@ -323,7 +323,7 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 80,
+    paddingBottom: 120,
   },
   habitCard: {
     flexDirection: 'row',

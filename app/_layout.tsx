@@ -5,11 +5,28 @@ import { auth } from '../services/firebase';
 import { useNotifications } from '../hooks/useNotifications';
 import '../services/i18n';
 import { ThemeProvider } from '../context/ThemeProvider';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   useNotifications();
+
+  const [loaded, error] = useFonts({
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -22,7 +39,11 @@ const RootLayout = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <ThemeProvider>

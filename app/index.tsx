@@ -17,7 +17,7 @@ export default function Index() {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     return (
         <View style={styles.container}>
