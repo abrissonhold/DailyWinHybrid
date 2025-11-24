@@ -2,19 +2,18 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
     Appbar,
-    Button,
     Chip,
     Surface,
     Text,
     TextInput,
-    useTheme,
+    useTheme
 } from "react-native-paper";
 import {
     DatePickerModal,
     TimePickerModal,
 } from "react-native-paper-dates";
-import { Habit, Frequency, Priority, formatDate, formatTime } from "../types/habits";
-import { auth } from "../services/firebase";
+import { Frequency, Habit, Priority, formatDate, formatTime } from "../types/habits";
+import MapPicker from './MapPicker';
 
 type HabitFormProps = {
     habit?: Habit | null;    
@@ -338,33 +337,10 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                     numberOfLines={4}
                 />
 
-                {/* Extras */}
-                <SectionTitle text="Extras" />
-                <View style={styles.row}>
-                    <Button
-                        mode="outlined"
-                        icon="camera"
-                        style={styles.flex1}
-                        onPress={() => {
-                            // TODO: Implement camera logic
-                            // setImageUri(...)
-                        }}
-                    >
-                        Agregar foto
-                    </Button>
-                    <View style={{ width: 12 }} />
-                    <Button
-                        mode="outlined"
-                        icon="map-marker"
-                        style={styles.flex1}
-                        onPress={() => {
-                            // TODO: Implement location logic
-                            // setLocation(...)
-                        }}
-                    >
-                        Agregar ubicación
-                    </Button>
-                </View>
+                {/* Ubicación */}
+                <SectionTitle text="Ubicación" />
+
+                <MapPicker location={location} setLocation={setLocation} />               
 
                 <View style={{ height: 40 }} />
             </ScrollView>

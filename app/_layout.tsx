@@ -1,55 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { Slot, useRouter } from 'expo-router';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../services/firebase';
-import { useNotifications } from '../hooks/useNotifications';
-import '../services/i18n';
-import { ThemeProvider } from '../context/ThemeProvider';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
+import { Slot, useRouter } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import React, { useEffect } from "react";
+import { AuthProvider, useAuth } from "../context/AuthContext";
+import { ThemeProvider } from "../context/ThemeProvider";
+import "../styles/leaflet.css";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+
 SplashScreen.preventAutoHideAsync();
 
-const RootLayout = () => {
+const Gate = () => {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  useNotifications();
-
-  const [loaded, error] = useFonts({
+  const { user, loading } = useAuth();
+  const [fontsLoaded] = useFonts({
     ...Ionicons.font,
     ...MaterialCommunityIcons.font,
   });
 
+  // Redirect when auth is ready
   useEffect(() => {
-    if (loaded || error) {
+    if (!loading) {
+      if (user) router.replace("/(tabs)/home");
+      else router.replace("/login");
+    }
+  }, [loading, user]);
+
+  // Hide splash only when everything is ready
+  useEffect(() => {
+    if (!loading && fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loading, fontsLoaded]);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      if (user) {
-        router.replace('/(tabs)/home');
-      } else {
-        router.replace('/login');
-      }
-    });
+  if (loading || !fontsLoaded) return null;
 
-    return () => unsubscribe();
-  }, [router]);
-
-  if (!loaded && !error) {
-    return null;
-  }
-
-  return (
-    <ThemeProvider>
-      <Slot />
-    </ThemeProvider>
-  );
+  return <Slot />;
 };
 
-export default RootLayout;
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <Gate />
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
