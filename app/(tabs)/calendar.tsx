@@ -169,7 +169,7 @@ const CalendarScreen = () => {
     if (freq === Frequency.WEEKLY) {
       const letter = WEEKDAY_LETTERS[target.getDay()];
       if (!habit.daysOfWeek || habit.daysOfWeek.length === 0) {
-        return true; 
+        return true; // fallback si no hay días configurados
       }
       return habit.daysOfWeek.includes(letter);
     }
@@ -201,6 +201,7 @@ const CalendarScreen = () => {
     return target.getTime() > today.getTime();
   };
 
+  /** Equivalente a viewModel.toggleCompleted(habit.id, selectedDate) */
   const toggleHabitCompletion = async (habit: Habit, date: string) => {
     if (!habit.id) return;
     try {
@@ -222,6 +223,7 @@ const CalendarScreen = () => {
   };
 
   const getTotalCompletedDays = (): number => {
+    // días distintos con al menos un hábito completado
     return Object.keys(habitsByDate).length;
   };
 
@@ -367,7 +369,7 @@ const CalendarScreen = () => {
                     onPress={() => toggleHabitCompletion(habit, selectedDate)}
                   >
                     {completed && (
-                      <Ionicons name="checkmark" size={18} color="#fff" />
+                      <Ionicons name="checkmark" size={18} color={paperTheme.colors.surface} />
                     )}
                   </TouchableOpacity>
 

@@ -4,6 +4,11 @@ import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 const baseColors = {
     primary: '#7528a5ff',
     accent: '#f5ba0cff',
+    success: '#4CAF50',
+    streak: '#FF6B6B',
+    priorityHigh: '#E53935',
+    priorityMedium: '#FB8C00',
+    priorityLow: '#43A047',
 };
 
 const lightThemeColors = {
@@ -32,6 +37,7 @@ const darkThemeColors = {
     notification: baseColors.primary,
 };
 
+
 export const FONT_SIZES = {
     title: 24,
     subtitle: 18,
@@ -57,4 +63,20 @@ export const NavLightTheme = {
 export const NavDarkTheme = {
     ...NDarkTheme,
     colors: darkThemeColors,
+};
+
+export const hexToRgba = (hex: string, opacity: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
+export const getPriorityColor = (priority: any, theme: any) => {
+    switch (priority) {
+        case 'HIGH': return theme.colors.priorityHigh;
+        case 'MEDIUM': return theme.colors.priorityMedium;
+        case 'LOW': return theme.colors.priorityLow;
+        default: return theme.colors.text;
+    }
 };

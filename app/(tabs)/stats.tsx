@@ -4,9 +4,10 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
-import { Frequency, Habit, Priority, formatDate, getPriorityColor } from '../../types/habits';
+import { Frequency, Habit, Priority, formatDate } from '../../types/habits';
 import { Theme as NavTheme } from '@react-navigation/native';
 import { MD3Theme } from 'react-native-paper';
+import { hexToRgba } from '../../constants/theme';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const screenWidth = Dimensions.get('window').width;
@@ -38,8 +39,15 @@ const StatsScreen = () => {
       acc[habit.category] = (acc[habit.category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-
-    const colors = [paperTheme.colors.primary, paperTheme.colors.secondary, paperTheme.colors.tertiary, '#FFA07A', '#98D8C8', '#F7DC6F'];
+    
+    const colors = [
+      paperTheme.colors.primary,
+      paperTheme.colors.secondary,
+      paperTheme.colors.tertiary,
+      paperTheme.colors.error,
+      paperTheme.colors.secondaryContainer,
+      paperTheme.colors.primaryContainer
+    ];
 
     return Object.keys(categoryCounts).map((category, index) => ({
       name: category,
@@ -77,7 +85,7 @@ const StatsScreen = () => {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = formatDate(date);
-      last7Days.push(dateStr.substring(5));
+      last7Days.push(dateStr.substring(5)); 
       const completedCount = habits.filter(habit => habit.completedDates.includes(dateStr)).length;
       completionCounts.push(completedCount);
     }
@@ -86,7 +94,7 @@ const StatsScreen = () => {
       labels: last7Days,
       datasets: [{
         data: completionCounts,
-        color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`, 
+        color: (opacity = 1) => hexToRgba(paperTheme.colors.tertiary, opacity),
         strokeWidth: 2
       }]
     };
@@ -107,8 +115,8 @@ const StatsScreen = () => {
     backgroundGradientFrom: navTheme.colors.card,
     backgroundGradientTo: navTheme.colors.card,
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(${parseInt(paperTheme.colors.primary.slice(1, 3), 16)}, ${parseInt(paperTheme.colors.primary.slice(3, 5), 16)}, ${parseInt(paperTheme.colors.primary.slice(5, 7), 16)}, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(${parseInt(navTheme.colors.text.slice(1, 3), 16)}, ${parseInt(navTheme.colors.text.slice(3, 5), 16)}, ${parseInt(navTheme.colors.text.slice(5, 7), 16)}, ${opacity})`,
+    color: (opacity = 1) => hexToRgba(paperTheme.colors.primary, opacity),
+    labelColor: (opacity = 1) => hexToRgba(navTheme.colors.text, opacity),
     style: { borderRadius: 16 },
     propsForDots: { r: '6', strokeWidth: '2', stroke: paperTheme.colors.primary }
   };
@@ -137,7 +145,7 @@ const StatsScreen = () => {
       </View>
 
       <View style={styles.bestStreakContainer}>
-        <Text style={styles.sectionTitle}>🔥 Mejor Racha</Text>
+        <Text style={styles.sectionTitle}>Mejor Racha</Text>
         <View style={styles.bestStreakCard}><Text style={styles.bestStreakNumber}>{bestStreak.streak}</Text><Text style={styles.bestStreakName}>{bestStreak.name}</Text></View>
       </View>
 
@@ -155,7 +163,7 @@ const StatsScreen = () => {
 
       <View style={styles.chartContainer}>
         <Text style={styles.sectionTitle}>Por Prioridad</Text>
-        <BarChart data={getPriorityStats()} width={screenWidth - 40} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={{ ...chartConfig, color: (opacity = 1) => `rgba(255, 107, 107, ${opacity})` }} style={styles.chart} showValuesOnTopOfBars fromZero />
+        <BarChart data={getPriorityStats()} width={screenWidth - 40} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={{ ...chartConfig, color: (opacity = 0) => `rgba(255, 107, 107, ${opacity})` }} style={styles.chart} showValuesOnTopOfBars fromZero />
       </View>
 
       <View style={styles.chartContainer}>
@@ -164,7 +172,7 @@ const StatsScreen = () => {
       </View>
 
       <View style={styles.topHabitsContainer}>
-        <Text style={styles.sectionTitle}>🏆 Top 3 Hábitos</Text>
+        <Text style={styles.sectionTitle}>Top 3 Hábitos 🏆</Text>
         {habits.sort((a, b) => b.streak - a.streak).slice(0, 3).map((habit, index) => (
           <View key={habit.id} style={styles.topHabitCard}>
             <Text style={styles.topHabitRank}>#{index + 1}</Text>
@@ -186,9 +194,9 @@ const themedStyles = (theme: NavTheme, paperTheme: MD3Theme) => StyleSheet.creat
   summaryNumber: { fontSize: 32, fontWeight: 'bold', color: paperTheme.colors.primary, marginBottom: 4 },
   summaryLabel: { fontSize: 12, color: theme.colors.text, textAlign: 'center' },
   bestStreakContainer: { marginHorizontal: 20, marginBottom: 20 },
-  bestStreakCard: { backgroundColor: paperTheme.colors.error, borderRadius: 16, padding: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
-  bestStreakNumber: { fontSize: 48, fontWeight: 'bold', color: '#fff', marginBottom: 8 },
-  bestStreakName: { fontSize: 18, color: '#fff', fontWeight: '600' },
+  bestStreakCard: { backgroundColor: paperTheme.colors.background, borderRadius: 16, padding: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  bestStreakNumber: { fontSize: 48, fontWeight: 'bold', color: paperTheme.colors.primary, marginBottom: 8 },
+  bestStreakName: { fontSize: 18, color: paperTheme.colors.primary, fontWeight: '600' },
   sectionTitle: { fontSize: 20, fontWeight: 'bold', color: theme.colors.text, marginBottom: 12 },
   chartContainer: { backgroundColor: theme.colors.card, marginHorizontal: 20, marginBottom: 20, padding: 16, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
   chart: { marginVertical: 8, borderRadius: 16 },
@@ -198,7 +206,7 @@ const themedStyles = (theme: NavTheme, paperTheme: MD3Theme) => StyleSheet.creat
   topHabitInfo: { flex: 1 },
   topHabitName: { fontSize: 16, fontWeight: '600', color: theme.colors.text, marginBottom: 2 },
   topHabitCategory: { fontSize: 12, color: theme.colors.text },
-  topHabitStreak: { fontSize: 18, fontWeight: 'bold', color: paperTheme.colors.error },
+  topHabitStreak: { fontSize: 18, fontWeight: 'bold', color: paperTheme.colors.primary },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40, backgroundColor: theme.colors.background },
   emptyIcon: { fontSize: 64, marginBottom: 16 },
   emptyTitle: { fontSize: 22, fontWeight: 'bold', color: theme.colors.text, marginBottom: 8, textAlign: 'center' },

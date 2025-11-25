@@ -172,15 +172,15 @@ export const getHabitColor = (habitId: string, theme: MD3Theme): string => {
     return habitColors[index];
 };
 
-export const getPriorityColor = (priority: Priority, theme: MD3Theme): string => {
+export const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
         case Priority.HIGH:
-            return theme.colors.error;
+            return '#E53935'; 
         case Priority.MEDIUM:
-            return theme.colors.secondary;
+            return '#FB8C00'; 
         case Priority.LOW:
-            return theme.colors.primary;
+            return '#43A047'; 
         default:
-            return theme.colors.onSurface;
+            return '#000000';
     }
 };

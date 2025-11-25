@@ -16,7 +16,8 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Theme } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
-import { Frequency, Habit, Priority, formatDate, isCompletedToday, getPriorityColor, isScheduledForToday } from '../../types/habits';
+import { Frequency, Habit, Priority, formatDate, isCompletedToday, isScheduledForToday } from '../../types/habits';
+import { getPriorityColor } from '../../constants/theme';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const HomeScreen = () => {
@@ -111,7 +112,7 @@ const HomeScreen = () => {
           streak: habit.streak + 1
         });
 
-        Alert.alert('¡Bien hecho! 🎉', `Has completado "${habit.name}"`);
+        Alert.alert('¡Bien hecho!', `Has completado "${habit.name}"`);
       }
     } catch (error) {
       Alert.alert('Error', 'No se pudo actualizar el hábito');
@@ -129,7 +130,7 @@ const HomeScreen = () => {
   const renderHabitCard = ({ item }: { item: Habit }) => {
     const completed = isCompletedToday(item);
     const priorityColor = getPriorityColor(item.priority, paperTheme);
-    const styles = themedStyles(navTheme);
+    const styles = themedStyles(navTheme, paperTheme);
     const scheduledToday = isScheduledForToday(item);
 
     return (
@@ -184,7 +185,7 @@ const HomeScreen = () => {
   const progressPercentage = progress.total > 0
     ? Math.round((progress.completed / progress.total) * 100)
     : 0;
-  const styles = themedStyles(navTheme);
+  const styles = themedStyles(navTheme, paperTheme);
 
   return (
     <View style={styles.container}>
@@ -258,7 +259,7 @@ const HomeScreen = () => {
   );
 };
 
-const themedStyles = (theme: Theme) => StyleSheet.create({
+const themedStyles = (theme: Theme, paperTheme: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -414,8 +415,8 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
     alignItems: 'center',
   },
   checkButtonCompleted: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: paperTheme.colors.success,
+    borderColor: paperTheme.colors.success,
   },
   emptyContainer: {
     flex: 1,

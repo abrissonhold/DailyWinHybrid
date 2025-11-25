@@ -13,6 +13,7 @@ import {
     TimePickerModal,
 } from "react-native-paper-dates";
 import { Frequency, Habit, Priority, formatDate, formatTime } from "../types/habits";
+import { getPriorityColor } from "../constants/theme";
 import MapPicker from './MapPicker';
 
 type HabitFormProps = {
@@ -440,21 +441,21 @@ const FrequencyChip: React.FC<{
     );
 };
 
+import { useThemeContext } from "../context/ThemeProvider";
+
 const PriorityChip: React.FC<{
     priority: Priority;
     selected: boolean;
     onPress: () => void;
     style?: any;
 }> = ({ priority, selected, onPress, style }) => {
-    let color = "#43A047"; // LOW
-    let label = "Baja";
-    if (priority === Priority.MEDIUM) {
-        color = "#FB8C00";
-        label = "Media";
-    } else if (priority === Priority.HIGH) {
-        color = "#E53935";
-        label = "Alta";
-    }
+    const { paperTheme } = useThemeContext();
+    const color = getPriorityColor(priority, paperTheme);
+    const label = {
+        [Priority.LOW]: "Baja",
+        [Priority.MEDIUM]: "Media",
+        [Priority.HIGH]: "Alta",
+    }[priority];
 
     return (
         <Surface
