@@ -92,6 +92,7 @@ const HabitDetailScreen = () => {
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={habit.name} />
+        <Appbar.Action icon="pencil" onPress={() => router.push(`/(tabs)/habit/edit/${habitId}`)} />
         <Appbar.Action icon="delete" onPress={handleDelete} />
       </Appbar.Header>
       <CustomAlert
@@ -159,11 +160,6 @@ const HabitDetailScreen = () => {
                 <Divider style={styles.divider} />
               </>
             )}
-            {habit.location && (
-              <Card.Content style={styles.mapContainer}>
-                <MapPicker location={habit.location} readOnly />
-              </Card.Content>
-            )}
             {habit.frequency === 'WEEKLY' && habit.daysOfWeek && habit.daysOfWeek.length > 0 && (
               <>
                 <InfoRow icon="calendar-week" label="Days" value={habit.daysOfWeek.join(', ')} />
@@ -181,6 +177,15 @@ const HabitDetailScreen = () => {
             <InfoRow icon="flag-checkered" label="End Date" value={habit.endDate} />
           </Card.Content>
         </Card>
+
+        {habit.location && (
+          <Card style={styles.card}>
+            <Card.Title title="Location" />
+            <View style={styles.mapContainer}>
+              <MapPicker location={habit.location} readOnly />
+            </View>
+          </Card>
+        )}
 
         <Card style={styles.card}>
           <Card.Title title="Goals" />
@@ -200,12 +205,6 @@ const HabitDetailScreen = () => {
           {isCompleted ? "Completed Today" : "Mark as Completed"}
         </Button>
       </ScrollView>
-
-      <FAB
-        icon="pencil"
-        style={styles.fab}
-        onPress={() => router.push(`/(tabs)/habit/edit/${habitId}`)}
-      />
     </View>
   );
 };
@@ -261,16 +260,9 @@ const createStyles = (theme: MD3Theme) => StyleSheet.create({
     marginTop: 16,
     paddingVertical: 8,
   },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.primary,
-  },
   mapContainer: {
     height: 200,
-    marginVertical: 16,
+    margin: 16,
     borderRadius: 12,
     overflow: 'hidden',
   },
