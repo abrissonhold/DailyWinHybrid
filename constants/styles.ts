@@ -1,0 +1,1 @@
+export const TAB_BAR_HEIGHT = 70 + 25;

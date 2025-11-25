@@ -25,7 +25,9 @@ import {
   markAsCompleted,
   Priority,
   unmarkCompleted,
+  getPriorityColor,
 } from '../../types/habits';
+import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 interface MarkedDates {
   [date: string]: {
@@ -41,16 +43,6 @@ interface HabitsByDate {
   [date: string]: Habit[];
 }
 
-const COLORS = [
-  '#FF6B6B',
-  '#4ECDC4',
-  '#45B7D1',
-  '#FFA07A',
-  '#98D8C8',
-  '#F7DC6F',
-  '#BB8FCE',
-];
-
 // 0 = Sunday, 1 = Monday ...
 const WEEKDAY_LETTERS: Record<number, string> = {
   0: 'D', // Domingo
@@ -63,7 +55,7 @@ const WEEKDAY_LETTERS: Record<number, string> = {
 };
 
 const CalendarScreen = () => {
-  const { navTheme } = useThemeContext();
+  const { navTheme, paperTheme } = useThemeContext();
   const styles = useMemo(() => themedStyles(navTheme), [navTheme]);
   const navigation = useNavigation<any>();
 
@@ -102,9 +94,9 @@ const CalendarScreen = () => {
               };
             }
 
-            const colorIndex = habits.indexOf(habit) % COLORS.length;
+            const priorityColor = getPriorityColor(habit.priority, paperTheme);
             newMarkedDates[date].dots?.push({
-              color: COLORS[colorIndex],
+              color: priorityColor,
               key: habit.id,
             });
           });
@@ -321,7 +313,7 @@ const CalendarScreen = () => {
               <View
                 style={[
                   styles.legendDot,
-                  { backgroundColor: COLORS[index % COLORS.length] },
+                  { backgroundColor: getPriorityColor(habit.priority, paperTheme) },
                 ]}
               />
               <Text style={styles.legendText}>{habit.name}</Text>
@@ -346,7 +338,7 @@ const CalendarScreen = () => {
             habitsForSelectedDate.map((habit) => {
               const completed = isHabitCompletedOnDate(habit, selectedDate);
               const future = isFutureDate(selectedDate);
-              const priorityColor = getPriorityColor(habit.priority, navTheme);
+              const priorityColor = getPriorityColor(habit.priority, paperTheme);
 
               return (
                 <View
@@ -443,19 +435,6 @@ const CalendarScreen = () => {
   );
 };
 
-const getPriorityColor = (priority: Priority, theme: Theme): string => {
-  switch (priority) {
-    case Priority.HIGH:
-      return '#E53935';
-    case Priority.MEDIUM:
-      return '#FB8C00';
-    case Priority.LOW:
-      return '#43A047';
-    default:
-      return theme.colors.primary;
-  }
-};
-
 const themedStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
@@ -463,7 +442,7 @@ const themedStyles = (theme: Theme) =>
       backgroundColor: theme.colors.background,
     },
     contentContainer: {
-      paddingBottom: 120,
+      paddingBottom: TAB_BAR_HEIGHT,
     },
     topBar: {
       flexDirection: 'row',

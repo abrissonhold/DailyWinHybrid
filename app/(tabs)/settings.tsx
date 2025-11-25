@@ -4,14 +4,17 @@ import { signOut } from 'firebase/auth';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Button, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import i18n from '../../services/i18n';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth } from '../../services/firebase';
-import { Theme } from '@react-navigation/native';
+import { Theme as NavTheme } from '@react-navigation/native';
+import { MD3Theme } from 'react-native-paper';
+import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const SettingsScreen = () => {
-  const { t, i18n } = useTranslation();
-  const { colorScheme, setTheme, navTheme } = useThemeContext();
-  const styles = themedStyles(navTheme);
+  const { t } = useTranslation();
+  const { colorScheme, setTheme, navTheme, paperTheme } = useThemeContext();
+  const styles = themedStyles(navTheme, paperTheme);
 
   const handleLogout = () => {
     signOut(auth)
@@ -82,15 +85,15 @@ const SettingsScreen = () => {
         </OptionRow>
         <OptionRow icon="language-outline" title="Idioma">
           <View style={styles.languageSelector}>
-             <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? '#6A1B9A' : '#ccc'} />
-             <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? '#6A1B9A' : '#ccc'} />
-             <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? '#6A1B9A' : '#ccc'} />
+             <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
+             <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
+             <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? navTheme.colors.primary : navTheme.colors.text} />
           </View>
         </OptionRow>
       </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={22} color="#d829b2ff" />
+          <Ionicons name="log-out-outline" size={22} color={paperTheme.colors.error} />
           <Text style={styles.logoutButtonText}>{t('settings.logout')}</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -98,7 +101,7 @@ const SettingsScreen = () => {
   );
 };
 
-const themedStyles = (theme: Theme) => StyleSheet.create({
+const themedStyles = (theme: NavTheme, paperTheme: MD3Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -122,7 +125,7 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 120,
+    paddingBottom: TAB_BAR_HEIGHT,
   },
   section: {
     marginTop: 20,
@@ -165,7 +168,7 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
   },
   themeSelector: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
     borderRadius: 20,
     padding: 4,
   },
@@ -201,7 +204,7 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
   },
   logoutButtonText: {
     fontSize: 16,
-    color: '#D32F2F',
+    color: paperTheme.colors.error,
     fontWeight: '600',
     marginLeft: 8,
   },

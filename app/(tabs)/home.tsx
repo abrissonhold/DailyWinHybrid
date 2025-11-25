@@ -16,11 +16,12 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Theme } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
-import { Frequency, Habit, Priority, formatDate, isCompletedToday } from '../../types/habits';
+import { Frequency, Habit, Priority, formatDate, isCompletedToday, getPriorityColor } from '../../types/habits';
+import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
-  const { navTheme } = useThemeContext();
+  const { navTheme, paperTheme } = useThemeContext();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const userId = auth.currentUser?.uid;
@@ -100,15 +101,6 @@ const HomeScreen = () => {
     }
   };
 
-  const getPriorityColor = (priority: Priority): string => {
-    switch (priority) {
-      case Priority.HIGH: return '#FF6B6B';
-      case Priority.MEDIUM: return '#FFA500';
-      case Priority.LOW: return '#4ECDC4';
-      default: return '#999';
-    }
-  };
-
   const getTodayProgress = (): { completed: number; total: number } => {
     const today = formatDate(new Date());
     const completed = habits.filter(h => h.completedDates.includes(today)).length;
@@ -117,7 +109,7 @@ const HomeScreen = () => {
 
   const renderHabitCard = ({ item }: { item: Habit }) => {
     const completed = isCompletedToday(item);
-    const priorityColor = getPriorityColor(item.priority);
+    const priorityColor = getPriorityColor(item.priority, paperTheme);
     const styles = themedStyles(navTheme);
 
     return (
@@ -323,7 +315,7 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 120,
+    paddingBottom: TAB_BAR_HEIGHT,
   },
   habitCard: {
     flexDirection: 'row',

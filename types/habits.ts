@@ -1,3 +1,5 @@
+import { MD3Theme } from "react-native-paper";
+
 export enum Priority {
     LOW = 'LOW',
     MEDIUM = 'MEDIUM',
@@ -119,3 +121,16 @@ export const unmarkCompleted = (habit: Habit, date?: Date): Habit => {
         streak: Math.max(0, habit.streak - 1)
     };
 };
+
+export const getPriorityColor = (priority: Priority, theme: MD3Theme): string => {
+    switch (priority) {
+      case Priority.HIGH:
+        return theme.colors.error;
+      case Priority.MEDIUM:
+        return theme.colors.secondary;
+      case Priority.LOW:
+        return theme.colors.primary;
+      default:
+        return theme.colors.onSurface;
+    }
+  };
