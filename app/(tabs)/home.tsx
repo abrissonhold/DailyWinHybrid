@@ -59,6 +59,24 @@ const HomeScreen = () => {
 
       habitsData.sort((a, b) => {
         const priorityOrder = { [Priority.HIGH]: 3, [Priority.MEDIUM]: 2, [Priority.LOW]: 1 };
+
+        const getGroup = (habit: Habit) => {
+          if (isCompletedToday(habit)) {
+            return 3;
+          }
+          if (!isScheduledForToday(habit)) {
+            return 2;
+          }
+          return 1;
+        };
+
+        const groupA = getGroup(a);
+        const groupB = getGroup(b);
+
+        if (groupA !== groupB) {
+          return groupA - groupB;
+        }
+
         return priorityOrder[b.priority] - priorityOrder[a.priority];
       });
 
@@ -103,8 +121,9 @@ const HomeScreen = () => {
 
   const getTodayProgress = (): { completed: number; total: number } => {
     const today = formatDate(new Date());
-    const completed = habits.filter(h => h.completedDates.includes(today)).length;
-    return { completed, total: habits.length };
+    const scheduledTodayHabits = habits.filter(h => isScheduledForToday(h));
+    const completed = scheduledTodayHabits.filter(h => h.completedDates.includes(today)).length;
+    return { completed, total: scheduledTodayHabits.length };
   };
 
   const renderHabitCard = ({ item }: { item: Habit }) => {
@@ -133,7 +152,7 @@ const HomeScreen = () => {
               {item.name}
             </Text>
             <View style={styles.habitMeta}>
-              <Text style={styles.habitMetaText}>{t('home.habit')}</Text>
+              <Text style={styles.habitMetaText}>Hábito</Text>
               {item.time && (
                 <>
                   <Text style={styles.habitMetaDot}>•</Text>
@@ -162,7 +181,7 @@ const HomeScreen = () => {
   };
 
   const progress = getTodayProgress();
-  const progressPercentage = habits.length > 0
+  const progressPercentage = progress.total > 0
     ? Math.round((progress.completed / progress.total) * 100)
     : 0;
   const styles = themedStyles(navTheme);
@@ -178,7 +197,7 @@ const HomeScreen = () => {
           <Text
             style={styles.headerButton}
           >
-            {t('home.greeting', { email: auth.currentUser?.email || 'User' })}
+            {t(`Hola ${auth.currentUser?.email || 'Usuario'}`)}
           </Text>
         </View>
       </View>
@@ -207,8 +226,8 @@ const HomeScreen = () => {
             </AnimatedCircularProgress>
           </View>
           <View style={styles.progressInfo}>
-            <Text style={styles.progressInfoTitle}>{t('home.keepItUp')}</Text>
-            <Text style={styles.progressInfoText}>{t('home.completedHabits', { completed: progress.completed, total: progress.total })}</Text>
+            <Text style={styles.progressInfoTitle}>{t('Continua así')}</Text>
+            <Text style={styles.progressInfoText}>{t(`Completaste ${progress.completed} de ${progress.total} hábitos`)}</Text>
           </View>
         </View>
       )}
@@ -228,9 +247,9 @@ const HomeScreen = () => {
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyTitle}>{t('home.noHabits')}</Text>
+          <Text style={styles.emptyTitle}>No tienes hábitos aún</Text>
           <Text style={styles.emptyText}>
-            {t('home.createFirstHabit')}
+            ¡Crea tu primer hábito y comienza tu viaje hacia una mejor versión de ti!
           </Text>
         </View>
       )}

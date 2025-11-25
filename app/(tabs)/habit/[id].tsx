@@ -4,10 +4,12 @@ import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Appbar, Button, Card, Chip, Divider, FAB, Title, MD3Theme } from 'react-native-paper';
+import MapPicker from '../../../components/MapPicker';
 import { CustomAlert } from '../../../components/CustomAlert';
 import { useThemeContext } from '../../../context/ThemeProvider';
 import { db } from '../../../services/firebase';
 import { Habit, isCompletedToday, markAsCompleted, unmarkCompleted } from '../../../types/habits';
+import { TAB_BAR_HEIGHT } from '../../../constants/styles';
 
 type InfoRowProps = {
   icon: any;
@@ -129,6 +131,7 @@ const HabitDetailScreen = () => {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>
+          {habit.imageUri ? <Card.Cover source={{ uri: habit.imageUri }} /> : null}
           <Card.Content>
             <Title style={styles.title}>{habit.name}</Title>
             <Chip
@@ -148,6 +151,25 @@ const HabitDetailScreen = () => {
         <Card style={styles.card}>
           <Card.Title title="Details" />
           <Card.Content>
+            <InfoRow icon="fire" label="Streak" value={`${habit.streak} days`} />
+            <Divider style={styles.divider} />
+            {habit.reminders && habit.reminders.length > 0 && (
+              <>
+                <InfoRow icon="bell-ring-outline" label="Reminders" value={habit.reminders.join(', ')} />
+                <Divider style={styles.divider} />
+              </>
+            )}
+            {habit.location && (
+              <Card.Content style={styles.mapContainer}>
+                <MapPicker location={habit.location} readOnly />
+              </Card.Content>
+            )}
+            {habit.frequency === 'WEEKLY' && habit.daysOfWeek && habit.daysOfWeek.length > 0 && (
+              <>
+                <InfoRow icon="calendar-week" label="Days" value={habit.daysOfWeek.join(', ')} />
+                <Divider style={styles.divider} />
+              </>
+            )}
             <InfoRow icon="flag-outline" label="Priority" value={habit.priority} />
             <Divider style={styles.divider} />
             <InfoRow icon="calendar-repeat-outline" label="Frequency" value={habit.frequency} />
@@ -195,6 +217,7 @@ const createStyles = (theme: MD3Theme) => StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingBottom: TAB_BAR_HEIGHT + 16,
   },
   card: {
     marginBottom: 16,
@@ -244,6 +267,12 @@ const createStyles = (theme: MD3Theme) => StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: theme.colors.primary,
+  },
+  mapContainer: {
+    height: 200,
+    marginVertical: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
 });
 
