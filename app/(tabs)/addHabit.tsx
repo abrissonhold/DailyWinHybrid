@@ -22,18 +22,15 @@ const AddHabitScreen = () => {
         completedDates: [],
         createdAt: new Date(),
       };
-      
+
       await addDoc(collection(db, 'habits'), newHabit);
-      
-      Alert.alert('Éxito', '¡Hábito creado correctamente!', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      router.back();
     } catch (error) {
-        if (error instanceof Error) {
-            Alert.alert('Error', error.message);
-        } else {
-            Alert.alert('Error', 'An unknown error occurred.');
-        }
+      if (error instanceof Error) {
+        Alert.alert('Error', error.message);
+      } else {
+        Alert.alert('Error', 'An unknown error occurred.');
+      }
     }
   };
 

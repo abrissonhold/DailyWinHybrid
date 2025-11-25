@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Theme, useNavigation } from '@react-navigation/native';
 import {
   collection,
@@ -9,6 +10,7 @@ import {
   where,
 } from 'firebase/firestore';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ScrollView,
   StyleSheet,
@@ -25,7 +27,7 @@ import {
   markAsCompleted,
   Priority,
   unmarkCompleted,
-  getPriorityColor,
+  getHabitColor,
 } from '../../types/habits';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
@@ -43,18 +45,18 @@ interface HabitsByDate {
   [date: string]: Habit[];
 }
 
-// 0 = Sunday, 1 = Monday ...
-const WEEKDAY_LETTERS: Record<number, string> = {
-  0: 'D', // Domingo
-  1: 'L', // Lunes
-  2: 'M', // Martes
-  3: 'X', // Miércoles
-  4: 'J', // Jueves
-  5: 'V', // Viernes
-  6: 'S', // Sábado
-};
-
 const CalendarScreen = () => {
+  const { t, i18n } = useTranslation();
+
+  const WEEKDAY_LETTERS: Record<number, string> = useMemo(() => ({
+    0: t('weekdays.sun'),
+    1: t('weekdays.mon'),
+    2: t('weekdays.tue'),
+    3: t('weekdays.wed'),
+    4: t('weekdays.thu'),
+    5: t('weekdays.fri'),
+    6: t('weekdays.sat'),
+  }), [t]);
   const { navTheme, paperTheme } = useThemeContext();
   const styles = useMemo(() => themedStyles(navTheme), [navTheme]);
   const navigation = useNavigation<any>();
@@ -94,9 +96,9 @@ const CalendarScreen = () => {
               };
             }
 
-            const priorityColor = getPriorityColor(habit.priority, paperTheme);
+            const habitColor = getHabitColor(habit.id, paperTheme);
             newMarkedDates[date].dots?.push({
-              color: priorityColor,
+              color: habitColor,
               key: habit.id,
             });
           });
@@ -167,7 +169,7 @@ const CalendarScreen = () => {
     if (freq === Frequency.WEEKLY) {
       const letter = WEEKDAY_LETTERS[target.getDay()];
       if (!habit.daysOfWeek || habit.daysOfWeek.length === 0) {
-        return true; // fallback si no hay días configurados
+        return true; 
       }
       return habit.daysOfWeek.includes(letter);
     }
@@ -199,7 +201,6 @@ const CalendarScreen = () => {
     return target.getTime() > today.getTime();
   };
 
-  /** Equivalente a viewModel.toggleCompleted(habit.id, selectedDate) */
   const toggleHabitCompletion = async (habit: Habit, date: string) => {
     if (!habit.id) return;
     try {
@@ -221,7 +222,6 @@ const CalendarScreen = () => {
   };
 
   const getTotalCompletedDays = (): number => {
-    // días distintos con al menos un hábito completado
     return Object.keys(habitsByDate).length;
   };
 
@@ -252,6 +252,23 @@ const CalendarScreen = () => {
 
   const habitsForSelectedDate = selectedDate ? getHabitsForDate(selectedDate) : [];
 
+  const calendarTheme = useMemo(() => {
+    return {
+      calendarBackground: paperTheme.colors.surface,
+      todayTextColor: paperTheme.colors.primary,
+      selectedDayBackgroundColor: paperTheme.colors.primary,
+      selectedDayTextColor: paperTheme.colors.surface,
+      arrowColor: paperTheme.colors.primary,
+      monthTextColor: paperTheme.colors.onSurface,
+      textMonthFontWeight: 'bold' as const,
+      textMonthFontSize: 18,
+      dayTextColor: paperTheme.colors.onSurface,
+      textDisabledColor: paperTheme.colors.onSurfaceDisabled,
+      dotColor: paperTheme.colors.primary,
+      selectedDotColor: paperTheme.colors.surface,
+    };
+  }, [paperTheme]);
+
   return (
     <ScrollView
       style={styles.container}
@@ -262,7 +279,7 @@ const CalendarScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={navTheme.colors.text} />
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>Calendario</Text>
+        <Text style={styles.topBarTitle}>{t('calendar.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -270,15 +287,15 @@ const CalendarScreen = () => {
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
           <Text style={styles.statNumber}>{allHabits.length}</Text>
-          <Text style={styles.statLabel}>Hábitos</Text>
+          <Text style={styles.statLabel}>{t('calendar.habits')}</Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statNumber}>{getTotalCompletedDays()}</Text>
-          <Text style={styles.statLabel}>Días con hábitos completados</Text>
+          <Text style={styles.statLabel}>{t('calendar.completedDays')}</Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statNumber}>{getCurrentStreak()}</Text>
-          <Text style={styles.statLabel}>Racha actual</Text>
+          <Text style={styles.statLabel}>{t('calendar.currentStreak')}</Text>
         </View>
       </View>
 
@@ -288,32 +305,19 @@ const CalendarScreen = () => {
         onDayPress={handleDayPress}
         markingType="multi-dot"
         current={selectedDate}
-        theme={{
-          calendarBackground: navTheme.colors.card,
-          todayTextColor: navTheme.colors.primary,
-          selectedDayBackgroundColor: navTheme.colors.primary,
-          selectedDayTextColor: '#ffffff',
-          arrowColor: navTheme.colors.primary,
-          monthTextColor: navTheme.colors.text,
-          textMonthFontWeight: 'bold',
-          textMonthFontSize: 18,
-          dayTextColor: navTheme.colors.text,
-          textDisabledColor: navTheme.colors.border,
-          dotColor: navTheme.colors.primary,
-          selectedDotColor: '#ffffff',
-        }}
+        theme={calendarTheme}
       />
 
       {/* Leyenda de colores (extra, opcional) */}
       {allHabits.length > 0 && (
         <View style={styles.legendContainer}>
-          <Text style={styles.legendTitle}>Leyenda de hábitos:</Text>
+          <Text style={styles.legendTitle}>{t('calendar.legend')}</Text>
           {allHabits.map((habit, index) => (
             <View key={habit.id} style={styles.legendItem}>
               <View
                 style={[
                   styles.legendDot,
-                  { backgroundColor: getPriorityColor(habit.priority, paperTheme) },
+                  { backgroundColor: getHabitColor(habit.id, paperTheme) },
                 ]}
               />
               <Text style={styles.legendText}>{habit.name}</Text>
@@ -326,7 +330,7 @@ const CalendarScreen = () => {
       {selectedDate && (
         <View style={styles.selectedDateContainer}>
           <Text style={styles.selectedDateTitle}>
-            {new Date(selectedDate + 'T00:00:00').toLocaleDateString('es-ES', {
+            {new Date(selectedDate + 'T00:00:00').toLocaleDateString(i18n.language, {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -338,7 +342,7 @@ const CalendarScreen = () => {
             habitsForSelectedDate.map((habit) => {
               const completed = isHabitCompletedOnDate(habit, selectedDate);
               const future = isFutureDate(selectedDate);
-              const priorityColor = getPriorityColor(habit.priority, paperTheme);
+              const habitColor = getHabitColor(habit.id, paperTheme);
 
               return (
                 <View
@@ -352,9 +356,9 @@ const CalendarScreen = () => {
                   <TouchableOpacity
                     style={[
                       styles.habitCircle,
-                      completed && { backgroundColor: priorityColor },
+                      completed && { backgroundColor: habitColor },
                       !completed && {
-                        borderColor: priorityColor,
+                        borderColor: habitColor,
                         borderWidth: 2,
                       },
                       future && styles.habitCircleDisabled,
@@ -383,26 +387,21 @@ const CalendarScreen = () => {
                     <View
                       style={[
                         styles.habitStreakBadge,
-                        { borderColor: priorityColor },
+                        { borderColor: habitColor },
                       ]}
                     >
                       <Text
                         style={[
                           styles.habitStreakText,
-                          { color: priorityColor },
+                          { color: habitColor },
                         ]}
                       >
-                        {habit.streak || 0} días
+                        {habit.streak || 0} {t('calendar.days')}
                       </Text>
                     </View>
                     <TouchableOpacity
                       style={styles.editButton}
-                      onPress={() =>
-                        // ajusta este nombre de ruta a tu navegación real
-                        navigation.navigate('HabitForm', {
-                          habitId: habit.id,
-                        })
-                      }
+                      onPress={() => router.push(`/(tabs)/habit/edit/${habit.id}`)}
                     >
                       <Ionicons
                         name="pencil"
@@ -416,7 +415,7 @@ const CalendarScreen = () => {
             })
           ) : (
             <View style={styles.noHabitsContainer}>
-              <Text style={styles.noHabitsText}>No hay hábitos para este día</Text>
+              <Text style={styles.noHabitsText}>{t('calendar.noHabitsForDay')}</Text>
             </View>
           )}
         </View>
@@ -425,9 +424,9 @@ const CalendarScreen = () => {
       {/* Mensaje si no hay hábitos en absoluto */}
       {allHabits.length === 0 && (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>📝 Aún no tienes hábitos registrados.</Text>
+          <Text style={styles.emptyText}>{t('calendar.noHabitsYet')}</Text>
           <Text style={styles.emptySubtext}>
-            ¡Crea tu primer hábito y comienza tu viaje!
+            {t('calendar.createFirstHabit')}
           </Text>
         </View>
       )}

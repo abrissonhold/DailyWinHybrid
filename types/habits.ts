@@ -22,16 +22,16 @@ export interface Habit {
     reminders: string[];
     priority: Priority;
     frequency: Frequency;
-    startDate: string; 
-    endDate: string;   
+    startDate: string;
+    endDate: string;
     dailyGoal: string;
     additionalGoal: string;
     streak: number;
-    daysOfWeek: string[]; 
-    completedDates: string[]; 
+    daysOfWeek: string[];
+    completedDates: string[];
     imageUri: string;
     location: string;
-    createdAt?: Date; 
+    createdAt?: Date;
 }
 
 export interface NewHabitInput {
@@ -122,15 +122,65 @@ export const unmarkCompleted = (habit: Habit, date?: Date): Habit => {
     };
 };
 
+export const isScheduledForToday = (habit: Habit): boolean => {
+    const today = new Date();
+    const todayStr = formatDate(today);
+    const dayOfWeek = today.toLocaleString('en-US', { weekday: 'long' }).toUpperCase();
+    const dayOfMonth = today.getDate();
+
+    const startDate = parseDate(habit.startDate);
+    const endDate = parseDate(habit.endDate);
+
+    if (today < startDate || today > endDate) {
+        return false;
+    }
+
+    switch (habit.frequency) {
+        case Frequency.DAILY:
+            return true;
+        case Frequency.WEEKLY:
+            return habit.daysOfWeek.includes(dayOfWeek);
+        case Frequency.MONTHLY:
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            const scheduledDay = startDate.getDate();
+            if (scheduledDay > lastDayOfMonth) {
+                return dayOfMonth === lastDayOfMonth;
+            }
+            return dayOfMonth === scheduledDay;
+        default:
+            return false;
+    }
+};
+
+const habitColors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FED766', '#2AB7CA',
+    '#F0B37E', '#8A6F94', '#939597', '#F4A261', '#E76F51'
+];
+
+export const getHabitColor = (habitId: string, theme: MD3Theme): string => {
+    const hashCode = (str: string) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash |= 0;
+        }
+        return hash;
+    };
+
+    const index = Math.abs(hashCode(habitId)) % habitColors.length;
+    return habitColors[index];
+};
+
 export const getPriorityColor = (priority: Priority, theme: MD3Theme): string => {
     switch (priority) {
-      case Priority.HIGH:
-        return theme.colors.error;
-      case Priority.MEDIUM:
-        return theme.colors.secondary;
-      case Priority.LOW:
-        return theme.colors.primary;
-      default:
-        return theme.colors.onSurface;
+        case Priority.HIGH:
+            return theme.colors.error;
+        case Priority.MEDIUM:
+            return theme.colors.secondary;
+        case Priority.LOW:
+            return theme.colors.primary;
+        default:
+            return theme.colors.onSurface;
     }
-  };
+};

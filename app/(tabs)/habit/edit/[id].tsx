@@ -28,15 +28,13 @@ const EditHabitScreen = () => {
     try {
       const habitRef = doc(db, 'habits', id as string);
       await updateDoc(habitRef, habitData);
-      Alert.alert('Éxito', 'Hábito actualizado correctamente.', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      router.back();
     } catch (error) {
-        if (error instanceof Error) {
-            Alert.alert('Error', error.message);
-        } else {
-            Alert.alert('Error', 'An unknown error occurred.');
-        }
+      if (error instanceof Error) {
+        Alert.alert('Error', error.message);
+      } else {
+        Alert.alert('Error', 'An unknown error occurred.');
+      }
     }
   };
 

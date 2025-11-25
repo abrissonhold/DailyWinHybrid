@@ -16,7 +16,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Theme } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
-import { Frequency, Habit, Priority, formatDate, isCompletedToday, getPriorityColor } from '../../types/habits';
+import { Frequency, Habit, Priority, formatDate, isCompletedToday, getPriorityColor, isScheduledForToday } from '../../types/habits';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const HomeScreen = () => {
@@ -111,15 +111,18 @@ const HomeScreen = () => {
     const completed = isCompletedToday(item);
     const priorityColor = getPriorityColor(item.priority, paperTheme);
     const styles = themedStyles(navTheme);
+    const scheduledToday = isScheduledForToday(item);
 
     return (
       <TouchableOpacity
         style={[
           styles.habitCard,
           completed && styles.habitCardCompleted,
+          !scheduledToday && styles.habitCardDisabled,
         ]}
         onPress={() => router.push(`/(tabs)/habit/${item.id}`)}
         activeOpacity={0.8}
+        disabled={!scheduledToday}
       >
         <View style={styles.habitInfoContainer}>
           <View style={[styles.habitIcon, { backgroundColor: priorityColor }]}>
@@ -130,7 +133,7 @@ const HomeScreen = () => {
               {item.name}
             </Text>
             <View style={styles.habitMeta}>
-              <Text style={styles.habitMetaText}>Hábito</Text>
+              <Text style={styles.habitMetaText}>{t('home.habit')}</Text>
               {item.time && (
                 <>
                   <Text style={styles.habitMetaDot}>•</Text>
@@ -150,6 +153,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           style={[styles.checkButton, completed && styles.checkButtonCompleted]}
           onPress={() => toggleHabitCompletion(item)}
+          disabled={!scheduledToday}
         >
           {completed && <Ionicons name="checkmark" size={20} color={navTheme.colors.card} />}
         </TouchableOpacity>
@@ -174,7 +178,7 @@ const HomeScreen = () => {
           <Text
             style={styles.headerButton}
           >
-            {t(`Hola ${auth.currentUser?.email || 'Usuario'}`)}
+            {t('home.greeting', { email: auth.currentUser?.email || 'User' })}
           </Text>
         </View>
       </View>
@@ -203,8 +207,8 @@ const HomeScreen = () => {
             </AnimatedCircularProgress>
           </View>
           <View style={styles.progressInfo}>
-            <Text style={styles.progressInfoTitle}>{t('Continua así')}</Text>
-            <Text style={styles.progressInfoText}>{t(`Completaste ${progress.completed} de ${progress.total} hábitos`)}</Text>
+            <Text style={styles.progressInfoTitle}>{t('home.keepItUp')}</Text>
+            <Text style={styles.progressInfoText}>{t('home.completedHabits', { completed: progress.completed, total: progress.total })}</Text>
           </View>
         </View>
       )}
@@ -224,9 +228,9 @@ const HomeScreen = () => {
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyTitle}>No tienes hábitos aún</Text>
+          <Text style={styles.emptyTitle}>{t('home.noHabits')}</Text>
           <Text style={styles.emptyText}>
-            ¡Crea tu primer hábito y comienza tu viaje hacia una mejor versión de ti!
+            {t('home.createFirstHabit')}
           </Text>
         </View>
       )}
@@ -332,6 +336,9 @@ const themedStyles = (theme: Theme) => StyleSheet.create({
   },
   habitCardCompleted: {
     backgroundColor: theme.colors.border,
+  },
+  habitCardDisabled: {
+    opacity: 0.5,
   },
   habitInfoContainer: {
     flex: 1,

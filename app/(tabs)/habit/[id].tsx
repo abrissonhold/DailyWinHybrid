@@ -4,6 +4,7 @@ import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Appbar, Button, Card, Chip, Divider, FAB, Title, MD3Theme } from 'react-native-paper';
+import { CustomAlert } from '../../../components/CustomAlert';
 import { useThemeContext } from '../../../context/ThemeProvider';
 import { db } from '../../../services/firebase';
 import { Habit, isCompletedToday, markAsCompleted, unmarkCompleted } from '../../../types/habits';
@@ -31,6 +32,10 @@ const HabitDetailScreen = () => {
   const { paperTheme } = useThemeContext();
   const styles = createStyles(paperTheme);
   const [habit, setHabit] = useState<Habit | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [errorAlertVisible, setErrorAlertVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const habitId = Array.isArray(id) ? id[0] : id;
 
@@ -52,22 +57,7 @@ const HabitDetailScreen = () => {
 
   const handleDelete = () => {
     if (!habitId) return;
-    Alert.alert(
-      "Delete Habit",
-      "Are you sure you want to delete this habit?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          onPress: () => {
-            deleteDoc(doc(db, 'habits', habitId))
-              .then(() => router.back())
-              .catch((error) => Alert.alert('Error', error.message));
-          },
-          style: "destructive",
-        },
-      ]
-    );
+    setAlertVisible(true);
   };
 
   const handleToggleCompletion = () => {
@@ -102,6 +92,40 @@ const HabitDetailScreen = () => {
         <Appbar.Content title={habit.name} />
         <Appbar.Action icon="delete" onPress={handleDelete} />
       </Appbar.Header>
+      <CustomAlert
+        visible={alertVisible}
+        onDismiss={() => setAlertVisible(false)}
+        title="Delete Habit"
+        message="Are you sure you want to delete this habit?"
+        buttons={[
+          { text: "Cancel", onPress: () => setAlertVisible(false), style: "cancel" },
+          {
+            text: isDeleting ? "Deleting..." : "Delete",
+            onPress: () => {
+              setIsDeleting(true);
+              deleteDoc(doc(db, 'habits', habitId))
+                .then(() => {
+                  setAlertVisible(false);
+                  router.back();
+                })
+                .catch((error) => {
+                  setAlertVisible(false);
+                  setErrorMessage(error.message);
+                  setErrorAlertVisible(true);
+                })
+                .finally(() => setIsDeleting(false));
+            },
+            style: "destructive",
+          },
+        ]}
+      />
+      <CustomAlert
+        visible={errorAlertVisible}
+        onDismiss={() => setErrorAlertVisible(false)}
+        title="Error"
+        message={errorMessage}
+        buttons={[{ text: "OK", onPress: () => setErrorAlertVisible(false) }]}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>

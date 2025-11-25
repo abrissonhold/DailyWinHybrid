@@ -1,9 +1,51 @@
 {
   "home": {
-    "title": "Your Habits"
+    "title": "Your Habits",
+    "greeting": "Hello, {{email}}",
+    "keepItUp": "Keep it up!",
+    "completedHabits": "You completed {{completed}} of {{total}} habits",
+    "noHabits": "You have no habits yet",
+    "createFirstHabit": "Create your first habit and start your journey to a better version of you!",
+    "habit": "Habit"
   },
   "settings": {
     "title": "Settings",
     "logout": "Logout"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "habits": "Habits",
+    "completedDays": "Completed days",
+    "currentStreak": "Current streak",
+    "legend": "Habit legend:",
+    "days": "days",
+    "noHabitsForDay": "No habits for this day",
+    "noHabitsYet": "📝 You have no habits yet.",
+    "createFirstHabit": "Create your first habit and start your journey!"
+  },
+  "weekdays": {
+    "sun": "S",
+    "mon": "M",
+    "tue": "T",
+    "wed": "W",
+    "thu": "T",
+    "fri": "F",
+    "sat": "S"
+  },
+  "stats": {
+    "title": "Your Stats",
+    "totalHabits": "Total Habits",
+    "completedHabits": "Completed Habits",
+    "completionRate": "Completion Rate",
+    "byCategory": "By Category",
+    "last7Days": "Last 7 Days"
+  },
+  "habitDetails": {
+    "editHabit": "Edit Habit",
+    "deleteHabit": "Delete Habit",
+    "confirmDeleteTitle": "Confirm Deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete this habit? This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }
