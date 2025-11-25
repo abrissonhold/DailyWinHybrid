@@ -8,14 +8,16 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
-  }),
+    shouldShowBanner: true,
+    shouldShowList: true,
+  } as Notifications.NotificationBehavior),
 });
 
 export const useNotifications = () => {
   const [expoPushToken, setExpoPushToken] = useState<string>('');
   const [notification, setNotification] = useState<Notifications.Notification | false>(false);
-  const notificationListener = useRef<Notifications.Subscription>();
-  const responseListener = useRef<Notifications.Subscription>();
+  const notificationListener = useRef<Notifications.Subscription | null>(null);
+  const responseListener = useRef<Notifications.Subscription | null>(null);
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token || ''));
@@ -30,10 +32,10 @@ export const useNotifications = () => {
 
     return () => {
       if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
+        notificationListener.current.remove();
       }
       if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
+        responseListener.current.remove();
       }
     };
   }, []);
@@ -51,7 +53,6 @@ async function registerForPushNotificationsAsync(): Promise<string | undefined> 
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      // Only alert if on a physical device and permissions are denied.
       if (Device.isDevice) {
         alert('Failed to get push token for push notification!');
       }
@@ -59,7 +60,7 @@ async function registerForPushNotificationsAsync(): Promise<string | undefined> 
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
   } else {
-    console.log('Push notifications are not supported on this simulator/emulator.');
+    alert('Push notifications are not supported on this simulator/emulator.');
   }
 
   if (Platform.OS === 'android') {
