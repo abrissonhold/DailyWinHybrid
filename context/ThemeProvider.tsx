@@ -1,14 +1,16 @@
 import { Theme as NavTheme, ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import React, { createContext, useContext, ReactNode } from 'react';
-import { MD3Theme, Provider as PaperProvider } from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 import { NavLightTheme, NavDarkTheme, PaperLightTheme, PaperDarkTheme } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+
+type AppTheme = typeof PaperLightTheme;
 
 interface ThemeContextType {
   colorScheme: string;
   setTheme: (theme: string) => void;
   navTheme: NavTheme;
-  paperTheme: MD3Theme;
+  paperTheme: AppTheme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -28,7 +30,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const { colorScheme, setTheme } = useTheme();
   const activeScheme = colorScheme ?? 'light';
-
+  
   const navTheme = activeScheme === 'dark' ? NavDarkTheme : NavLightTheme;
   const paperTheme = activeScheme === 'dark' ? PaperDarkTheme : PaperLightTheme;
 

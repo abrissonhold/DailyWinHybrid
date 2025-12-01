@@ -9,6 +9,7 @@ declare module 'react-native-paper' {
         priorityLow: string;
         accent: string;
         success: string;
+        icon: string;
         tabIconDefault: string;
     }
 }

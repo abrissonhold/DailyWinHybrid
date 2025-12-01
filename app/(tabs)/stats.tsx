@@ -209,7 +209,7 @@ const themedStyles = (theme: NavTheme, paperTheme: MD3Theme) => StyleSheet.creat
   topHabitInfo: { flex: 1 },
   topHabitName: { fontSize: 16, fontWeight: '600', color: theme.colors.text, marginBottom: 2 },
   topHabitCategory: { fontSize: 12, color: theme.colors.text },
-  topHabitStreak: { fontSize: 18, fontWeight: 'bold', color: paperTheme.colors.streak },
+  topHabitStreak: { fontSize: 18, fontWeight: 'bold', color: paperTheme.colors.primary },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40, backgroundColor: theme.colors.background },
   emptyIcon: { fontSize: 64, marginBottom: 16 },
   emptyTitle: { fontSize: 22, fontWeight: 'bold', color: theme.colors.text, marginBottom: 8, textAlign: 'center' },
