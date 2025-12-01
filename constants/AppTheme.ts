@@ -1,6 +1,6 @@
 import { DarkTheme as NavDarkTheme, DefaultTheme as NavDefaultTheme } from '@react-navigation/native';
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
-import { COLORS } from './theme';
+import { Colors, baseColors } from './theme';
 
 export const AppLightTheme = {
     ...NavDefaultTheme,
@@ -8,12 +8,12 @@ export const AppLightTheme = {
     colors: {
         ...NavDefaultTheme.colors,
         ...MD3LightTheme.colors,
-        background: COLORS.light.background,
-        card: COLORS.light.card,
-        text: COLORS.light.text,
-        primary: COLORS.primary,
-        notification: COLORS.primary,
-        border: COLORS.light.border,
+        background: Colors.light.background,
+        card: Colors.light.card,
+        text: Colors.light.text,
+        primary: baseColors.primary,
+        notification: baseColors.primary,
+        border: Colors.light.border,
     },
 };
 
@@ -23,11 +23,11 @@ export const AppDarkTheme = {
     colors: {
         ...NavDarkTheme.colors,
         ...MD3DarkTheme.colors,
-        background: COLORS.dark.background,
-        card: COLORS.dark.card,
-        text: COLORS.dark.text,
-        primary: COLORS.primary,
-        notification: COLORS.primary,
-        border: COLORS.dark.border,
+        background: Colors.dark.background,
+        card: Colors.dark.card,
+        text: Colors.dark.text,
+        primary: baseColors.primary,
+        notification: baseColors.primary,
+        border: Colors.dark.border,
     },
 };

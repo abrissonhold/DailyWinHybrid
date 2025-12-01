@@ -1,7 +1,7 @@
 import { DarkTheme as NDarkTheme, DefaultTheme as NavDefaultTheme } from '@react-navigation/native';
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 
-const baseColors = {
+export const baseColors = {
     primary: '#7528a5ff',
     accent: '#f5ba0cff',
     success: '#4CAF50',
@@ -11,7 +11,7 @@ const baseColors = {
     priorityLow: '#43A047',
 };
 
-const lightThemeColors = {
+export const lightThemeColors = {
     ...NavDefaultTheme.colors,
     ...MD3LightTheme.colors,
     ...baseColors,
@@ -24,7 +24,7 @@ const lightThemeColors = {
     notification: baseColors.primary,
 };
 
-const darkThemeColors = {
+export const darkThemeColors = {
     ...NDarkTheme.colors,
     ...MD3DarkTheme.colors,
     ...baseColors,
@@ -37,6 +37,11 @@ const darkThemeColors = {
     notification: baseColors.primary,
 };
 
+
+export const Colors = {
+    light: lightThemeColors,
+    dark: darkThemeColors,
+};
 
 export const FONT_SIZES = {
     title: 24,

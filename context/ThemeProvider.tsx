@@ -28,7 +28,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const { colorScheme, setTheme } = useTheme();
   const activeScheme = colorScheme ?? 'light';
-  
+
   const navTheme = activeScheme === 'dark' ? NavDarkTheme : NavLightTheme;
   const paperTheme = activeScheme === 'dark' ? PaperDarkTheme : PaperLightTheme;
 

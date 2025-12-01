@@ -17,7 +17,7 @@ import { getPriorityColor } from "../constants/theme";
 import MapPicker from './MapPicker';
 
 type HabitFormProps = {
-    habit?: Habit | null;    
+    habit?: Habit | null;
     onSave: (habit: Partial<Habit>) => void;
     onCancel: () => void;
 };
@@ -341,7 +341,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 {/* Ubicación */}
                 <SectionTitle text="Ubicación" />
 
-                <MapPicker location={location} setLocation={setLocation} />               
+                <MapPicker location={location} setLocation={setLocation} />
 
                 <View style={{ height: 40 }} />
             </ScrollView>

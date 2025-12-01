@@ -6,17 +6,17 @@ import MapView, { Marker, UrlTile } from "react-native-maps";
 export default function NativeMap({ location, setLocation, readOnly = false }: MapPickerProps) {
   const initialCoords = location
     ? {
-        latitude: parseFloat(location.split(',')[0]),
-        longitude: parseFloat(location.split(',')[1]),
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }
+      latitude: parseFloat(location.split(',')[0]),
+      longitude: parseFloat(location.split(',')[1]),
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    }
     : {
-        latitude: -34.6037,
-        longitude: -58.3816,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      };
+      latitude: -34.6037,
+      longitude: -58.3816,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    };
 
   return (
     <View style={styles.container}>

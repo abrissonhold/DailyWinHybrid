@@ -66,31 +66,31 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Apariencia</Text>
-        <OptionRow icon="color-palette-outline" title="Tema">
-          <View style={styles.themeSelector}>
-            <TouchableOpacity
-              style={[styles.themeButton, colorScheme === 'light' && styles.themeButtonActive]}
-              onPress={() => setTheme('light')}
-            >
-              <Text style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>Claro</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.themeButton, colorScheme === 'dark' && styles.themeButtonActive]}
-              onPress={() => setTheme('dark')}
-            >
-              <Text style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>Oscuro</Text>
-            </TouchableOpacity>
-          </View>
-        </OptionRow>
-        <OptionRow icon="language-outline" title="Idioma">
-          <View style={styles.languageSelector}>
-             <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
-             <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
-             <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? navTheme.colors.primary : navTheme.colors.text} />
-          </View>
-        </OptionRow>
-      </View>
+          <Text style={styles.sectionTitle}>Apariencia</Text>
+          <OptionRow icon="color-palette-outline" title="Tema">
+            <View style={styles.themeSelector}>
+              <TouchableOpacity
+                style={[styles.themeButton, colorScheme === 'light' && styles.themeButtonActive]}
+                onPress={() => setTheme('light')}
+              >
+                <Text style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>Claro</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.themeButton, colorScheme === 'dark' && styles.themeButtonActive]}
+                onPress={() => setTheme('dark')}
+              >
+                <Text style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>Oscuro</Text>
+              </TouchableOpacity>
+            </View>
+          </OptionRow>
+          <OptionRow icon="language-outline" title="Idioma">
+            <View style={styles.languageSelector}>
+              <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
+              <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
+              <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? navTheme.colors.primary : navTheme.colors.text} />
+            </View>
+          </OptionRow>
+        </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={22} color={paperTheme.colors.error} />

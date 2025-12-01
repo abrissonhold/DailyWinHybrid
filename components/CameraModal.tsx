@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Camera } from 'expo-camera';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 interface CameraModalProps {
   onPictureTaken: (uri: string) => void;
@@ -8,24 +8,49 @@ interface CameraModalProps {
 }
 
 const CameraModal = ({ onPictureTaken, onClose }: CameraModalProps) => {
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+
+  useEffect(() => {
+    if (!permission) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
   const takePicture = async () => {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync();
-      onPictureTaken(photo.uri);
+      if (photo) {
+        onPictureTaken(photo.uri);
+      }
     }
   };
 
+  if (!permission) {
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.text}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} ref={cameraRef}>
+      <CameraView style={styles.camera} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takePicture}>
             <Text style={styles.text}>Take Picture</Text>
           </TouchableOpacity>
         </View>
-      </Camera>
+      </CameraView>
       <TouchableOpacity style={styles.closeButton} onPress={onClose}>
         <Text style={styles.text}>Close</Text>
       </TouchableOpacity>
@@ -36,6 +61,7 @@ const CameraModal = ({ onPictureTaken, onClose }: CameraModalProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
   },
   camera: {
     flex: 1,
@@ -47,7 +73,7 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   button: {
-    flex: 0.1,
+    flex: 1,
     alignSelf: 'flex-end',
     alignItems: 'center',
   },
@@ -59,6 +85,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 40,
     right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 5,
   },
 });
 
