@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +11,7 @@ import { useThemeContext } from '../context/ThemeProvider';
 import { auth } from '../services/firebase';
 
 const LoginScreen = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -20,7 +22,7 @@ const LoginScreen = () => {
 
   const handleLogin = () => {
     if (!email || !password) {
-        setAlertMessage('Por favor, ingresa tu correo y contraseña.');
+        setAlertMessage(t('login.alerts.missingFields'));
         setAlertVisible(true);
         return;
     }
@@ -39,10 +41,10 @@ const LoginScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <ThemedText variant="headlineLarge" style={styles.title}>
-          Bienvenido
+          {t('login.title')}
         </ThemedText>
         <TextInput
-          label="Email"
+          label={t('login.emailLabel')}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -51,7 +53,7 @@ const LoginScreen = () => {
           mode="outlined"
         />
         <TextInput
-          label="Contraseña"
+          label={t('login.passwordLabel')}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!passwordVisible}
@@ -65,15 +67,15 @@ const LoginScreen = () => {
           }
         />
         <Button mode="contained" onPress={handleLogin} style={styles.button}>
-          Iniciar Sesión
+          {t('login.loginButton')}
         </Button>
         <Button onPress={() => router.push('/register')} style={styles.button}>
-          ¿No tienes una cuenta? Regístrate
+          {t('login.registerButton')}
         </Button>
       </View>
       <CustomAlert
         visible={alertVisible}
-        title="Error"
+        title={t('login.alerts.errorTitle')}
         message={alertMessage}
         onDismiss={() => setAlertVisible(false)} 
         buttons={[]}      

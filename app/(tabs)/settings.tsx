@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Button, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Appbar } from 'react-native-paper';
+import CustomAlert from '../../components/CustomAlert';
 import ThemedText from '../../components/ThemedText';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
 import { useThemeContext } from '../../context/ThemeProvider';
@@ -16,6 +18,8 @@ const SettingsScreen = () => {
   const { t } = useTranslation();
   const { colorScheme, setTheme, navTheme, paperTheme } = useThemeContext();
   const styles = themedStyles(navTheme, paperTheme);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   const handleLogout = () => {
     signOut(auth)
@@ -23,7 +27,8 @@ const SettingsScreen = () => {
         router.replace('/login');
       })
       .catch((error) => {
-        Alert.alert('Error', error.message);
+        setAlertMessage(error.message);
+        setAlertVisible(true);
       });
   };
 
@@ -48,43 +53,35 @@ const SettingsScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="menu" size={28} color={navTheme.colors.text} />
-        </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>{t('settings.title')}</ThemedText>
-        <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="ellipsis-vertical" size={24} color={navTheme.colors.text} />
-        </TouchableOpacity>
-      </View>
-
+      <Appbar.Header>
+        <Appbar.Content title={t('settings.title')} />
+      </Appbar.Header>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>General</ThemedText>
-          <OptionRow icon="person-circle-outline" title="Perfil" onPress={() => { /* Navigate to profile */ }} />
-          <OptionRow icon="notifications-outline" title="Notificaciones" onPress={() => { /* Navigate to notifications */ }} />
+          <ThemedText style={styles.sectionTitle}>{t('settings.general.title')}</ThemedText>
+          <OptionRow icon="person-circle-outline" title={t('settings.general.profile')} onPress={() => { /* Navigate to profile */ }} />
+          <OptionRow icon="notifications-outline" title={t('settings.general.notifications')} onPress={() => { /* Navigate to notifications */ }} />
         </View>
 
         <View style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Apariencia</ThemedText>
-        <OptionRow icon="color-palette-outline" title="Tema">
+        <ThemedText style={styles.sectionTitle}>{t('settings.appearance.title')}</ThemedText>
+        <OptionRow icon="color-palette-outline" title={t('settings.appearance.theme')}>
           <View style={styles.themeSelector}>
             <TouchableOpacity
               style={[styles.themeButton, colorScheme === 'light' && styles.themeButtonActive]}
               onPress={() => setTheme('light')}
             >
-              <ThemedText style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>Claro</ThemedText>
+              <ThemedText style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>{t('settings.appearance.light')}</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.themeButton, colorScheme === 'dark' && styles.themeButtonActive]}
               onPress={() => setTheme('dark')}
             >
-              <ThemedText style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>Oscuro</ThemedText>
+              <ThemedText style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>{t('settings.appearance.dark')}</ThemedText>
             </TouchableOpacity>
           </View>
         </OptionRow>
-        <OptionRow icon="language-outline" title="Idioma">
+        <OptionRow icon="language-outline" title={t('settings.appearance.language')}>
           <View style={styles.languageSelector}>
              <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
              <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
@@ -98,6 +95,13 @@ const SettingsScreen = () => {
           <ThemedText style={styles.logoutButtonText}>{t('settings.logout')}</ThemedText>
         </TouchableOpacity>
       </ScrollView>
+      <CustomAlert
+        visible={alertVisible}
+        title={t('settings.logoutError')}
+        message={alertMessage}
+        onDismiss={() => setAlertVisible(false)}
+        buttons={[{ text: 'OK', onPress: () => setAlertVisible(false) }]}
+      />
     </View>
   );
 };

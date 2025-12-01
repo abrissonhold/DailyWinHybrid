@@ -26,9 +26,7 @@ export const useNotifications = () => {
       setNotification(notification);
     });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {});
 
     return () => {
       if (notificationListener.current) {

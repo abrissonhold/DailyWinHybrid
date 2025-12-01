@@ -4,7 +4,6 @@ import { collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/f
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -12,8 +11,10 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { Appbar } from 'react-native-paper';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Theme } from '@react-navigation/native';
+import CustomAlert from '../../components/CustomAlert';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
 import { Frequency, Habit, Priority, formatDate, isCompletedToday, isScheduledForToday } from '../../types/habits';
@@ -25,6 +26,9 @@ const HomeScreen = () => {
   const { navTheme, paperTheme } = useThemeContext();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
   const userId = auth.currentUser?.uid;
 
   useEffect(() => {
@@ -112,11 +116,14 @@ const HomeScreen = () => {
           streak: habit.streak + 1
         });
 
-        Alert.alert('¡Bien hecho!', `Has completado "${habit.name}"`);
+        setAlertTitle(t('home.alert.wellDone'));
+        setAlertMessage(t('home.alert.completedHabit', { habitName: habit.name }));
+        setAlertVisible(true);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar el hábito');
-      console.error(error);
+      setAlertTitle(t('home.alert.error'));
+      setAlertMessage(t('home.alert.updateFailed'));
+      setAlertVisible(true);
     }
   };
 
@@ -153,7 +160,7 @@ const HomeScreen = () => {
               {item.name}
             </Text>
             <View style={styles.habitMeta}>
-              <Text style={styles.habitMetaText}>Hábito</Text>
+              <Text style={styles.habitMetaText}>{t('home.habitCard.habit')}</Text>
               {item.time && (
                 <>
                   <Text style={styles.habitMetaDot}>•</Text>
@@ -189,19 +196,9 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.headerTitle}>{t('home.title')}</Text>
-        </View>
-        <View style={styles.headerIcons}>
-          <Text
-            style={styles.headerButton}
-          >
-            {t(`Hola ${auth.currentUser?.email || 'Usuario'}`)}
-          </Text>
-        </View>
-      </View>
+      <Appbar.Header>
+        <Appbar.Content title={t('home.title')} />
+      </Appbar.Header>
 
       {/* Progress Section */}
       {habits.length > 0 && (
@@ -227,8 +224,8 @@ const HomeScreen = () => {
             </AnimatedCircularProgress>
           </View>
           <View style={styles.progressInfo}>
-            <Text style={styles.progressInfoTitle}>{t('Continua así')}</Text>
-            <Text style={styles.progressInfoText}>{t(`Completaste ${progress.completed} de ${progress.total} hábitos`)}</Text>
+            <Text style={styles.progressInfoTitle}>{t('home.progress.title')}</Text>
+            <Text style={styles.progressInfoText}>{t('home.progress.text', { completed: progress.completed, total: progress.total })}</Text>
           </View>
         </View>
       )}
@@ -248,13 +245,20 @@ const HomeScreen = () => {
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyTitle}>No tienes hábitos aún</Text>
+          <Text style={styles.emptyTitle}>{t('home.empty.title')}</Text>
           <Text style={styles.emptyText}>
-            ¡Crea tu primer hábito y comienza tu viaje hacia una mejor versión de ti!
+            {t('home.empty.text')}
           </Text>
         </View>
       )}
 
+      <CustomAlert
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        onDismiss={() => setAlertVisible(false)}
+        buttons={[{ text: 'OK', onPress: () => setAlertVisible(false) }]}
+      />
     </View>
   );
 };

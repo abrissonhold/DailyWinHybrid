@@ -2,7 +2,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Appbar, Button, Card, Chip, Divider, FAB, Title, MD3Theme } from 'react-native-paper';
 import MapPicker from '../../../components/MapPicker';
 import CustomAlert from '../../../components/CustomAlert';
@@ -31,6 +32,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => {
 
 const HabitDetailScreen = () => {
   const { id } = useLocalSearchParams();
+  const { t } = useTranslation();
   const { paperTheme } = useThemeContext();
   const styles = createStyles(paperTheme);
   const [habit, setHabit] = useState<Habit | null>(null);
@@ -49,8 +51,8 @@ const HabitDetailScreen = () => {
       if (docSnap.exists()) {
         setHabit({ id: docSnap.id, ...docSnap.data() } as Habit);
       } else {
-        Alert.alert('Error', 'Habit not found.');
-        router.back();
+        setErrorMessage(t('habitDetails.notFound.message'));
+        setErrorAlertVisible(true);
       }
     });
 
@@ -79,7 +81,7 @@ const HabitDetailScreen = () => {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Loading..." />
+          <Appbar.Content title={t('habitDetails.loading')} />
         </Appbar.Header>
       </View>
     );
@@ -98,12 +100,12 @@ const HabitDetailScreen = () => {
       <CustomAlert
         visible={alertVisible}
         onDismiss={() => setAlertVisible(false)}
-        title="Delete Habit"
-        message="Are you sure you want to delete this habit?"
+        title={t('habitDetails.deleteAlert.title')}
+        message={t('habitDetails.deleteAlert.message')}
         buttons={[
-          { text: "Cancel", onPress: () => setAlertVisible(false), style: "cancel" },
+          { text: t('habitDetails.deleteAlert.cancel'), onPress: () => setAlertVisible(false), style: "cancel" },
           {
-            text: isDeleting ? "Deleting..." : "Delete",
+            text: isDeleting ? t('habitDetails.deleteAlert.deleting') : t('habitDetails.deleteAlert.delete'),
             onPress: () => {
               setIsDeleting(true);
               deleteDoc(doc(db, 'habits', habitId))
@@ -125,9 +127,9 @@ const HabitDetailScreen = () => {
       <CustomAlert
         visible={errorAlertVisible}
         onDismiss={() => setErrorAlertVisible(false)}
-        title="Error"
+        title={t('habitDetails.errorAlert.title')}
         message={errorMessage}
-        buttons={[{ text: "OK", onPress: () => setErrorAlertVisible(false) }]}
+        buttons={[{ text: t('habitDetails.errorAlert.ok'), onPress: () => setErrorAlertVisible(false) }]}
       />
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -150,37 +152,37 @@ const HabitDetailScreen = () => {
         </Card>
 
         <Card style={styles.card}>
-          <Card.Title title="Details" />
+          <Card.Title title={t('habitDetails.details.title')} />
           <Card.Content>
-            <InfoRow icon="fire" label="Streak" value={`${habit.streak} days`} />
+            <InfoRow icon="fire" label={t('habitDetails.details.streak')} value={t('habitDetails.details.days', { count: habit.streak })} />
             <Divider style={styles.divider} />
             {habit.reminders && habit.reminders.length > 0 && (
               <>
-                <InfoRow icon="bell-ring-outline" label="Reminders" value={habit.reminders.join(', ')} />
+                <InfoRow icon="bell-ring-outline" label={t('habitDetails.details.reminders')} value={habit.reminders.join(', ')} />
                 <Divider style={styles.divider} />
               </>
             )}
             {habit.frequency === 'WEEKLY' && habit.daysOfWeek && habit.daysOfWeek.length > 0 && (
               <>
-                <InfoRow icon="calendar-week" label="Days" value={habit.daysOfWeek.join(', ')} />
+                <InfoRow icon="calendar-week" label={t('habitDetails.details.daysOfWeek')} value={habit.daysOfWeek.join(', ')} />
                 <Divider style={styles.divider} />
               </>
             )}
-            <InfoRow icon="flag-outline" label="Priority" value={habit.priority} />
+            <InfoRow icon="flag-outline" label={t('habitDetails.details.priority')} value={habit.priority} />
             <Divider style={styles.divider} />
-            <InfoRow icon="calendar-repeat-outline" label="Frequency" value={habit.frequency} />
+            <InfoRow icon="calendar-repeat-outline" label={t('habitDetails.details.frequency')} value={habit.frequency} />
             <Divider style={styles.divider} />
-            <InfoRow icon="clock-outline" label="Time" value={habit.time || 'Not set'} />
+            <InfoRow icon="clock-outline" label={t('habitDetails.details.time')} value={habit.time || t('habitDetails.details.notSet')} />
             <Divider style={styles.divider} />
-            <InfoRow icon="calendar-check-outline" label="Start Date" value={habit.startDate} />
+            <InfoRow icon="calendar-check-outline" label={t('habitDetails.details.startDate')} value={habit.startDate} />
             <Divider style={styles.divider} />
-            <InfoRow icon="flag-checkered" label="End Date" value={habit.endDate} />
+            <InfoRow icon="flag-checkered" label={t('habitDetails.details.endDate')} value={habit.endDate} />
           </Card.Content>
         </Card>
 
         {habit.location && (
           <Card style={styles.card}>
-            <Card.Title title="Location" />
+            <Card.Title title={t('habitDetails.location.title')} />
             <View style={styles.mapContainer}>
               <MapPicker location={habit.location} readOnly />
             </View>
@@ -188,11 +190,11 @@ const HabitDetailScreen = () => {
         )}
 
         <Card style={styles.card}>
-          <Card.Title title="Goals" />
+          <Card.Title title={t('habitDetails.goals.title')} />
           <Card.Content>
-            <InfoRow icon="trophy-outline" label="Daily Goal" value={habit.dailyGoal || 'Not set'} />
+            <InfoRow icon="trophy-outline" label={t('habitDetails.goals.dailyGoal')} value={habit.dailyGoal || t('habitDetails.details.notSet')} />
             <Divider style={styles.divider} />
-            <InfoRow icon="trophy-award-outline" label="Additional Goal" value={habit.additionalGoal || 'Not set'} />
+            <InfoRow icon="trophy-award-outline" label={t('habitDetails.goals.additionalGoal')} value={habit.additionalGoal || t('habitDetails.details.notSet')} />
           </Card.Content>
         </Card>
 
@@ -202,7 +204,7 @@ const HabitDetailScreen = () => {
           style={styles.completeButton}
           icon={isCompleted ? "check-circle" : "circle-outline"}
         >
-          {isCompleted ? "Completed Today" : "Mark as Completed"}
+          {isCompleted ? t('habitDetails.completedToday') : t('habitDetails.markAsCompleted')}
         </Button>
       </ScrollView>
     </View>

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Theme, useNavigation } from '@react-navigation/native';
+import CustomAlert from '../../components/CustomAlert';
 import {
   collection,
   doc,
@@ -18,6 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Appbar } from 'react-native-paper';
 import { Calendar, DateData } from 'react-native-calendars';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
@@ -67,6 +69,9 @@ const CalendarScreen = () => {
   );
   const [habitsByDate, setHabitsByDate] = useState<HabitsByDate>({});
   const [allHabits, setAllHabits] = useState<Habit[]>([]);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
   const userId = auth.currentUser?.uid;
 
   useEffect(() => {
@@ -218,7 +223,9 @@ const CalendarScreen = () => {
         streak: updatedHabit.streak,
       });
     } catch (error) {
-      console.error('Error toggling habit completion:', error);
+      setAlertTitle(t('calendar.toggleErrorTitle'));
+      setAlertMessage(t('calendar.toggleErrorMessage'));
+      setAlertVisible(true);
     }
   };
 
@@ -276,162 +283,165 @@ const CalendarScreen = () => {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      {/* Top bar similar al TopAppBar de Kotlin */}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={navTheme.colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.topBarTitle}>{t('calendar.title')}</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      {/* Stats */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{allHabits.length}</Text>
-          <Text style={styles.statLabel}>{t('calendar.habits')}</Text>
+      <View style={styles.container}>
+        <Appbar.Header>
+          <Appbar.Content title={t('calendar.title')} />
+        </Appbar.Header>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{getTotalCompletedDays()}</Text>
-          <Text style={styles.statLabel}>{t('calendar.completedDays')}</Text>
+        {/* Stats */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>{allHabits.length}</Text>
+            <Text style={styles.statLabel}>{t('calendar.habits')}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>{getTotalCompletedDays()}</Text>
+            <Text style={styles.statLabel}>{t('calendar.completedDays')}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>{getCurrentStreak()}</Text>
+            <Text style={styles.statLabel}>{t('calendar.currentStreak')}</Text>
+          </View>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{getCurrentStreak()}</Text>
-          <Text style={styles.statLabel}>{t('calendar.currentStreak')}</Text>
-        </View>
-      </View>
 
-      {/* Calendario */}
-      <Calendar
-        markedDates={markedDates}
-        onDayPress={handleDayPress}
-        markingType="multi-dot"
-        current={selectedDate}
-        theme={calendarTheme}
-      />
+        {/* Calendario */}
+        <Calendar
+          markedDates={markedDates}
+          onDayPress={handleDayPress}
+          markingType="multi-dot"
+          current={selectedDate}
+          theme={calendarTheme}
+        />
 
-      {/* Leyenda de colores (extra, opcional) */}
-      {allHabits.length > 0 && (
-        <View style={styles.legendContainer}>
-          <Text style={styles.legendTitle}>{t('calendar.legend')}</Text>
-          {allHabits.map((habit, index) => (
-            <View key={habit.id} style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: getHabitColor(habit.id, paperTheme) },
-                ]}
-              />
-              <Text style={styles.legendText}>{habit.name}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Lista de hábitos para el día seleccionado (debidos, no sólo completados) */}
-      {selectedDate && (
-        <View style={styles.selectedDateContainer}>
-          <Text style={styles.selectedDateTitle}>
-            {new Date(selectedDate + 'T00:00:00').toLocaleDateString(i18n.language, {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Text>
-
-          {habitsForSelectedDate.length > 0 ? (
-            habitsForSelectedDate.map((habit) => {
-              const completed = isHabitCompletedOnDate(habit, selectedDate);
-              const future = isFutureDate(selectedDate);
-              const habitColor = getHabitColor(habit.id, paperTheme);
-
-              return (
+        {/* Leyenda de colores (extra, opcional) */}
+        {allHabits.length > 0 && (
+          <View style={styles.legendContainer}>
+            <Text style={styles.legendTitle}>{t('calendar.legend')}</Text>
+            {allHabits.map((habit, index) => (
+              <View key={habit.id} style={styles.legendItem}>
                 <View
-                  key={habit.id}
                   style={[
-                    styles.habitCard,
-                    completed && styles.habitCardCompleted,
+                    styles.legendDot,
+                    { backgroundColor: getHabitColor(habit.id, paperTheme) },
                   ]}
-                >
-                  {/* Círculo de completado (como en HabitCalendarItem de Kotlin) */}
-                  <TouchableOpacity
+                />
+                <Text style={styles.legendText}>{habit.name}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Lista de hábitos para el día seleccionado (debidos, no sólo completados) */}
+        {selectedDate && (
+          <View style={styles.selectedDateContainer}>
+            <Text style={styles.selectedDateTitle}>
+              {new Date(selectedDate + 'T00:00:00').toLocaleDateString(i18n.language, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </Text>
+
+            {habitsForSelectedDate.length > 0 ? (
+              habitsForSelectedDate.map((habit) => {
+                const completed = isHabitCompletedOnDate(habit, selectedDate);
+                const future = isFutureDate(selectedDate);
+                const habitColor = getHabitColor(habit.id, paperTheme);
+
+                return (
+                  <View
+                    key={habit.id}
                     style={[
-                      styles.habitCircle,
-                      completed && { backgroundColor: habitColor },
-                      !completed && {
-                        borderColor: habitColor,
-                        borderWidth: 2,
-                      },
-                      future && styles.habitCircleDisabled,
+                      styles.habitCard,
+                      completed && styles.habitCardCompleted,
                     ]}
-                    disabled={future}
-                    onPress={() => toggleHabitCompletion(habit, selectedDate)}
                   >
-                    {completed && (
-                      <Ionicons name="checkmark" size={18} color={paperTheme.colors.surface} />
-                    )}
-                  </TouchableOpacity>
-
-                  {/* Info del hábito */}
-                  <View style={styles.habitInfo}>
-                    <Text style={styles.habitName}>{habit.name}</Text>
-                    {habit.time && habit.time.trim().length > 0 && (
-                      <Text style={styles.habitTime}>{habit.time}</Text>
-                    )}
-                    {habit.category && (
-                      <Text style={styles.habitCategory}>{habit.category}</Text>
-                    )}
-                  </View>
-
-                  {/* Racha + botón editar */}
-                  <View style={styles.habitRight}>
-                    <View
+                    {/* Círculo de completado (como en HabitCalendarItem de Kotlin) */}
+                    <TouchableOpacity
                       style={[
-                        styles.habitStreakBadge,
-                        { borderColor: habitColor },
+                        styles.habitCircle,
+                        completed && { backgroundColor: habitColor },
+                        !completed && {
+                          borderColor: habitColor,
+                          borderWidth: 2,
+                        },
+                        future && styles.habitCircleDisabled,
                       ]}
+                      disabled={future}
+                      onPress={() => toggleHabitCompletion(habit, selectedDate)}
                     >
-                      <Text
+                      {completed && (
+                        <Ionicons name="checkmark" size={18} color={paperTheme.colors.surface} />
+                      )}
+                    </TouchableOpacity>
+
+                    {/* Info del hábito */}
+                    <View style={styles.habitInfo}>
+                      <Text style={styles.habitName}>{habit.name}</Text>
+                      {habit.time && habit.time.trim().length > 0 && (
+                        <Text style={styles.habitTime}>{habit.time}</Text>
+                      )}
+                      {habit.category && (
+                        <Text style={styles.habitCategory}>{habit.category}</Text>
+                      )}
+                    </View>
+
+                    {/* Racha + botón editar */}
+                    <View style={styles.habitRight}>
+                      <View
                         style={[
-                          styles.habitStreakText,
-                          { color: habitColor },
+                          styles.habitStreakBadge,
+                          { borderColor: habitColor },
                         ]}
                       >
-                        {habit.streak || 0} {t('calendar.days')}
-                      </Text>
+                        <Text
+                          style={[
+                            styles.habitStreakText,
+                            { color: habitColor },
+                          ]}
+                        >
+                          {habit.streak || 0} {t('calendar.days')}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => router.push(`/(tabs)/habit/edit/${habit.id}`)}
+                      >
+                        <Ionicons
+                          name="pencil"
+                          size={18}
+                          color={navTheme.colors.text}
+                        />
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={() => router.push(`/(tabs)/habit/edit/${habit.id}`)}
-                    >
-                      <Ionicons
-                        name="pencil"
-                        size={18}
-                        color={navTheme.colors.text}
-                      />
-                    </TouchableOpacity>
                   </View>
-                </View>
-              );
-            })
-          ) : (
-            <View style={styles.noHabitsContainer}>
-              <Text style={styles.noHabitsText}>{t('calendar.noHabitsForDay')}</Text>
-            </View>
-          )}
-        </View>
-      )}
+                );
+              })
+            ) : (
+              <View style={styles.noHabitsContainer}>
+                <Text style={styles.noHabitsText}>{t('calendar.noHabitsForDay')}</Text>
+              </View>
+            )}
+          </View>
+        )}
 
-      {/* Mensaje si no hay hábitos en absoluto */}
-      {allHabits.length === 0 && (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>{t('calendar.noHabitsYet')}</Text>
-          <Text style={styles.emptySubtext}>
-            {t('calendar.createFirstHabit')}
-          </Text>
-        </View>
-      )}
+        {/* Mensaje si no hay hábitos en absoluto */}
+        {allHabits.length === 0 && (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>{t('calendar.noHabitsYet')}</Text>
+            <Text style={styles.emptySubtext}>
+              {t('calendar.createFirstHabit')}
+            </Text>
+          </View>
+        )}
+        <CustomAlert
+          visible={alertVisible}
+          title={alertTitle}
+          message={alertMessage}
+          onDismiss={() => setAlertVisible(false)}
+          buttons={[{ text: 'OK', onPress: () => setAlertVisible(false) }]}
+        />
     </ScrollView>
   );
 };

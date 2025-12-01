@@ -1,16 +1,24 @@
 import { router } from 'expo-router';
 import { addDoc, collection } from 'firebase/firestore';
-import React from 'react';
-import { Alert } from 'react-native';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import CustomAlert from '../../components/CustomAlert';
 import { HabitForm } from '../../components/HabitForm';
 import { auth, db } from '../../services/firebase';
 import { Habit } from '../../types/habits';
 
 const AddHabitScreen = () => {
+  const { t } = useTranslation();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+
   const handleSave = async (habitData: Partial<Habit>) => {
     const userId = auth.currentUser?.uid;
     if (!userId) {
-      Alert.alert('Error', 'Debes iniciar sesión para agregar un hábito.');
+      setAlertTitle(t('addHabit.alert.errorTitle'));
+      setAlertMessage(t('addHabit.alert.loginRequired'));
+      setAlertVisible(true);
       return;
     }
 
@@ -26,11 +34,13 @@ const AddHabitScreen = () => {
       await addDoc(collection(db, 'habits'), newHabit);
       router.back();
     } catch (error) {
+      setAlertTitle(t('addHabit.alert.errorTitle'));
       if (error instanceof Error) {
-        Alert.alert('Error', error.message);
+        setAlertMessage(error.message);
       } else {
-        Alert.alert('Error', 'An unknown error occurred.');
+        setAlertMessage(t('addHabit.alert.unknownError'));
       }
+      setAlertVisible(true);
     }
   };
 
@@ -38,7 +48,18 @@ const AddHabitScreen = () => {
     router.back();
   };
 
-  return <HabitForm onSave={handleSave} onCancel={handleCancel} />;
+  return (
+    <>
+      <HabitForm onSave={handleSave} onCancel={handleCancel} />
+      <CustomAlert
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        onDismiss={() => setAlertVisible(false)}
+        buttons={[{ text: 'OK', onPress: () => setAlertVisible(false) }]}
+      />
+    </>
+  );
 };
 
 export default AddHabitScreen;

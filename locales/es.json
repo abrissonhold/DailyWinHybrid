@@ -2,15 +2,65 @@
   "home": {
     "title": "Tus Hábitos",
     "greeting": "Hola, {{email}}",
-    "keepItUp": "¡Sigue así!",
-    "completedHabits": "Completaste {{completed}} de {{total}} hábitos",
-    "noHabits": "Aún no tienes hábitos",
-    "createFirstHabit": "¡Crea tu primer hábito y comienza tu viaje hacia una mejor versión de ti!",
-    "habit": "Hábito"
+    "user": "Usuario",
+    "progress": {
+      "title": "¡Sigue así!",
+      "text": "Completaste {{completed}} de {{total}} hábitos"
+    },
+    "empty": {
+      "title": "Aún no tienes hábitos",
+      "text": "¡Crea tu primer hábito y comienza tu viaje hacia una mejor versión de ti!"
+    },
+    "habitCard": {
+      "habit": "Hábito"
+    },
+    "alert": {
+      "wellDone": "¡Bien hecho!",
+      "completedHabit": "Has completado \"{{habitName}}\"",
+      "error": "Error",
+      "updateFailed": "No se pudo actualizar el hábito"
+    }
+  },
+  "login": {
+    "title": "Bienvenido",
+    "emailLabel": "Email",
+    "passwordLabel": "Contraseña",
+    "loginButton": "Iniciar Sesión",
+    "registerButton": "¿No tienes una cuenta? Regístrate",
+    "alerts": {
+      "missingFields": "Por favor, ingresa tu correo y contraseña.",
+      "errorTitle": "Error"
+    }
+  },
+  "register": {
+    "title": "Crear Cuenta",
+    "nameLabel": "Nombre",
+    "lastNameLabel": "Apellido",
+    "emailLabel": "Email",
+    "passwordLabel": "Contraseña",
+    "registerButton": "Registrarse",
+    "loginButton": "¿Ya tienes una cuenta? Inicia Sesión",
+    "alerts": {
+      "missingFields": "Por favor, completa todos los campos.",
+      "errorTitle": "Error"
+    }
   },
   "settings": {
     "title": "Ajustes",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "logoutError": "Error",
+    "general": {
+      "title": "General",
+      "profile": "Perfil",
+      "notifications": "Notificaciones"
+    },
+    "appearance": {
+      "title": "Apariencia",
+      "theme": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "language": "Idioma"
+    }
   },
   "calendar": {
     "title": "Calendario",
@@ -21,7 +71,89 @@
     "days": "días",
     "noHabitsForDay": "No hay hábitos para este día",
     "noHabitsYet": "📝 Aún no tienes hábitos registrados.",
-    "createFirstHabit": "¡Crea tu primer hábito y comienza tu viaje!"
+    "createFirstHabit": "¡Crea tu primer hábito y comienza tu viaje!",
+    "toggleErrorTitle": "Error",
+    "toggleErrorMessage": "No se pudo actualizar el hábito."
+  },
+  "addHabit": {
+    "alert": {
+      "errorTitle": "Error",
+      "loginRequired": "Debes iniciar sesión para agregar un hábito.",
+      "unknownError": "Ocurrió un error desconocido."
+    }
+  },
+  "editHabit": {
+    "loading": "Cargando hábito...",
+    "notFound": {
+      "title": "Error",
+      "message": "No se encontró el hábito."
+    },
+    "saveError": {
+      "title": "Error",
+      "unknown": "Ocurrió un error desconocido."
+    }
+  },
+  "habitForm": {
+    "editTitle": "Editar hábito",
+    "newTitle": "Nuevo hábito",
+    "basicInfo": {
+      "title": "Información básica",
+      "nameLabel": "Nombre del hábito *",
+      "namePlaceholder": "Ej: Hacer ejercicio"
+    },
+    "category": {
+      "title": "Categoría",
+      "categories": {
+        "health": "Salud",
+        "productivity": "Productividad",
+        "finances": "Finanzas",
+        "learning": "Aprendizaje",
+        "relationships": "Relaciones",
+        "hobbies": "Hobbies"
+      }
+    },
+    "priority": {
+      "title": "Prioridad",
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "frequency": {
+      "title": "Frecuencia",
+      "daily": "Diaria",
+      "weekly": "Semanal",
+      "monthly": "Mensual"
+    },
+    "weekdays": {
+      "title": "Días de la semana"
+    },
+    "period": {
+      "title": "Período",
+      "startDateLabel": "Fecha de inicio",
+      "endDateLabel": "Fecha de fin",
+      "selectPlaceholder": "Seleccionar",
+      "optionalPlaceholder": "Opcional"
+    },
+    "reminder": {
+      "title": "Recordatorio",
+      "timeLabel": "Hora",
+      "timePlaceholder": "Seleccionar hora"
+    },
+    "goals": {
+      "title": "Objetivos",
+      "dailyGoalLabel": "Objetivo diario",
+      "dailyGoalPlaceholder": "Ej: 30 minutos",
+      "additionalGoalLabel": "Objetivo adicional",
+      "additionalGoalPlaceholder": "Ej: Perder 5kg en 3 meses"
+    },
+    "notes": {
+      "title": "Notas",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Agrega notas sobre este hábito"
+    },
+    "location": {
+      "title": "Ubicación"
+    }
   },
   "weekdays": {
     "sun": "D",
@@ -34,18 +166,84 @@
   },
   "stats": {
     "title": "Tus Estadísticas",
-    "totalHabits": "Total de Hábitos",
-    "completedHabits": "Hábitos Completados",
-    "completionRate": "Tasa de Finalización",
-    "byCategory": "Por Categoría",
-    "last7Days": "Últimos 7 Días"
+    "empty": {
+      "title": "No hay estadísticas aún",
+      "text": "Crea algunos hábitos y comienza a completarlos para ver tus estadísticas"
+    },
+    "summary": {
+      "totalHabits": "Total Hábitos",
+      "completed": "Completados",
+      "averageStreak": "Racha Media",
+      "todayRate": "Tasa Hoy"
+    },
+    "bestStreak": {
+      "title": "Mejor Racha"
+    },
+    "last7Days": {
+      "title": "Últimos 7 días"
+    },
+    "byCategory": {
+      "title": "Por Categoría"
+    },
+    "byPriority": {
+      "title": "Por Prioridad"
+    },
+    "byFrequency": {
+      "title": "Por Frecuencia"
+    },
+    "topHabits": {
+      "title": "Top 3 Hábitos"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "frequency": {
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual"
+    }
   },
   "habitDetails": {
-    "editHabit": "Editar Hábito",
-    "deleteHabit": "Eliminar Hábito",
-    "confirmDeleteTitle": "Confirmar Eliminación",
-    "confirmDeleteMessage": "¿Estás seguro de que deseas eliminar este hábito? Esta acción no se puede deshacer.",
-    "cancel": "Cancelar",
-    "delete": "Eliminar"
+    "loading": "Cargando...",
+    "notFound": {
+      "title": "Error",
+      "message": "Hábito no encontrado."
+    },
+    "deleteAlert": {
+      "title": "Eliminar Hábito",
+      "message": "¿Estás seguro de que quieres eliminar este hábito?",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "deleting": "Eliminando..."
+    },
+    "errorAlert": {
+      "title": "Error",
+      "ok": "OK"
+    },
+    "details": {
+      "title": "Detalles",
+      "streak": "Racha",
+      "days": "{{count}} días",
+      "reminders": "Recordatorios",
+      "daysOfWeek": "Días",
+      "priority": "Prioridad",
+      "frequency": "Frecuencia",
+      "time": "Hora",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "notSet": "No establecido"
+    },
+    "location": {
+      "title": "Ubicación"
+    },
+    "goals": {
+      "title": "Metas",
+      "dailyGoal": "Meta Diaria",
+      "additionalGoal": "Meta Adicional"
+    },
+    "completedToday": "Completado Hoy",
+    "markAsCompleted": "Marcar como Completado"
   }
 }

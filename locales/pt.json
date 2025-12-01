@@ -2,26 +2,158 @@
   "home": {
     "title": "Seus Hábitos",
     "greeting": "Olá, {{email}}",
-    "keepItUp": "Continue assim!",
-    "completedHabits": "Você completou {{completed}} de {{total}} hábitos",
-    "noHabits": "Você ainda não tem hábitos",
-    "createFirstHabit": "Crie seu primeiro hábito e comece sua jornada para uma versão melhor de si mesmo!",
-    "habit": "Hábito"
+    "user": "Usuário",
+    "progress": {
+      "title": "Continue assim!",
+      "text": "Você completou {{completed}} de {{total}} hábitos"
+    },
+    "empty": {
+      "title": "Você ainda não tem hábitos",
+      "text": "Crie seu primeiro hábito e comece sua jornada para uma versão melhor de si mesmo!"
+    },
+    "habitCard": {
+      "habit": "Hábito"
+    },
+    "alert": {
+      "wellDone": "Muito bem!",
+      "completedHabit": "Você completou \"{{habitName}}\"",
+      "error": "Erro",
+      "updateFailed": "Não foi possível atualizar o hábito"
+    }
+  },
+  "login": {
+    "title": "Bem-vindo",
+    "emailLabel": "Email",
+    "passwordLabel": "Senha",
+    "loginButton": "Entrar",
+    "registerButton": "Não tem uma conta? Cadastre-se",
+    "alerts": {
+      "missingFields": "Por favor, insira seu email e senha.",
+      "errorTitle": "Erro"
+    }
+  },
+  "register": {
+    "title": "Criar Conta",
+    "nameLabel": "Nome",
+    "lastNameLabel": "Sobrenome",
+    "emailLabel": "Email",
+    "passwordLabel": "Senha",
+    "registerButton": "Cadastrar",
+    "loginButton": "Já tem uma conta? Entrar",
+    "alerts": {
+      "missingFields": "Por favor, preencha todos os campos.",
+      "errorTitle": "Erro"
+    }
   },
   "settings": {
     "title": "Configurações",
-    "logout": "Sair"
+    "logout": "Sair",
+    "logoutError": "Erro",
+    "general": {
+      "title": "Geral",
+      "profile": "Perfil",
+      "notifications": "Notificações"
+    },
+    "appearance": {
+      "title": "Aparência",
+      "theme": "Tema",
+      "light": "Claro",
+      "dark": "Escuro",
+      "language": "Idioma"
+    }
   },
   "calendar": {
     "title": "Calendário",
     "habits": "Hábitos",
     "completedDays": "Dias completos",
-    "currentStreak": "Série atual",
-    "legend": "Legenda do hábito:",
+    "currentStreak": "Sequência atual",
+    "legend": "Legenda de hábitos:",
     "days": "dias",
-    "noHabitsForDay": "Nenhum hábito para este dia",
-    "noHabitsYet": "📝 Você ainda não tem hábitos.",
-    "createFirstHabit": "Crie seu primeiro hábito e comece sua jornada!"
+    "noHabitsForDay": "Não há hábitos para este dia",
+    "noHabitsYet": "📝 Você ainda não tem hábitos registrados.",
+    "createFirstHabit": "Crie seu primeiro hábito e comece sua jornada!",
+    "toggleErrorTitle": "Erro",
+    "toggleErrorMessage": "Não foi possível atualizar o hábito."
+  },
+  "addHabit": {
+    "alert": {
+      "errorTitle": "Erro",
+      "loginRequired": "Você deve estar logado para adicionar um hábito.",
+      "unknownError": "Ocorreu um erro desconhecido."
+    }
+  },
+  "editHabit": {
+    "loading": "Carregando hábito...",
+    "notFound": {
+      "title": "Erro",
+      "message": "Hábito não encontrado."
+    },
+    "saveError": {
+      "title": "Erro",
+      "unknown": "Ocorreu um erro desconhecido."
+    }
+  },
+  "habitForm": {
+    "editTitle": "Editar hábito",
+    "newTitle": "Novo hábito",
+    "basicInfo": {
+      "title": "Informações básicas",
+      "nameLabel": "Nome do hábito *",
+      "namePlaceholder": "Ex: Fazer exercício"
+    },
+    "category": {
+      "title": "Categoria",
+      "categories": {
+        "health": "Saúde",
+        "productivity": "Produtividade",
+        "finances": "Finanças",
+        "learning": "Aprendizagem",
+        "relationships": "Relacionamentos",
+        "hobbies": "Hobbies"
+      }
+    },
+    "priority": {
+      "title": "Prioridade",
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta"
+    },
+    "frequency": {
+      "title": "Frequência",
+      "daily": "Diária",
+      "weekly": "Semanal",
+      "monthly": "Mensal"
+    },
+    "weekdays": {
+      "title": "Dias da semana"
+    },
+    "period": {
+      "title": "Período",
+      "startDateLabel": "Data de início",
+      "endDateLabel": "Data de fim",
+      "selectPlaceholder": "Selecionar",
+      "optionalPlaceholder": "Opcional"
+    },
+    "reminder": {
+      "title": "Lembrete",
+      "timeLabel": "Hora",
+      "timePlaceholder": "Selecionar hora"
+    },
+    "goals": {
+      "title": "Metas",
+      "dailyGoalLabel": "Meta diária",
+      "dailyGoalPlaceholder": "Ex: 30 minutos",
+      "additionalGoalLabel": "Meta adicional",
+      "additionalGoalPlaceholder": "Ex: Perder 5kg em 3 meses"
+    },
+    "notes": {
+      "title": "Notas",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Adicione notas sobre este hábito"
+    },
+    "location": {
+      "title": "Localização"
+    }
   },
   "weekdays": {
     "sun": "D",
@@ -34,18 +166,84 @@
   },
   "stats": {
     "title": "Suas Estatísticas",
-    "totalHabits": "Total de Hábitos",
-    "completedHabits": "Hábitos Completados",
-    "completionRate": "Taxa de Conclusão",
-    "byCategory": "Por Categoria",
-    "last7Days": "Últimos 7 Dias"
+    "empty": {
+      "title": "Ainda não há estatísticas",
+      "text": "Crie alguns hábitos e comece a completá-los para ver suas estatísticas"
+    },
+    "summary": {
+      "totalHabits": "Total de Hábitos",
+      "completed": "Completos",
+      "averageStreak": "Sequência Média",
+      "todayRate": "Taxa de Hoje"
+    },
+    "bestStreak": {
+      "title": "Melhor Sequência"
+    },
+    "last7Days": {
+      "title": "Últimos 7 dias"
+    },
+    "byCategory": {
+      "title": "Por Categoria"
+    },
+    "byPriority": {
+      "title": "Por Prioridade"
+    },
+    "byFrequency": {
+      "title": "Por Frequência"
+    },
+    "topHabits": {
+      "title": "Top 3 Hábitos"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "frequency": {
+      "daily": "Diário",
+      "weekly": "Semanal",
+      "monthly": "Mensal"
+    }
   },
   "habitDetails": {
-    "editHabit": "Editar Hábito",
-    "deleteHabit": "Excluir Hábito",
-    "confirmDeleteTitle": "Confirmar Exclusão",
-    "confirmDeleteMessage": "Tem certeza de que deseja excluir este hábito? Esta ação não pode ser desfeita.",
-    "cancel": "Cancelar",
-    "delete": "Excluir"
+    "loading": "Carregando...",
+    "notFound": {
+      "title": "Erro",
+      "message": "Hábito não encontrado."
+    },
+    "deleteAlert": {
+      "title": "Excluir Hábito",
+      "message": "Tem certeza de que deseja excluir este hábito?",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "deleting": "Excluindo..."
+    },
+    "errorAlert": {
+      "title": "Erro",
+      "ok": "OK"
+    },
+    "details": {
+      "title": "Detalhes",
+      "streak": "Sequência",
+      "days": "{{count}} dias",
+      "reminders": "Lembretes",
+      "daysOfWeek": "Dias",
+      "priority": "Prioridade",
+      "frequency": "Frequência",
+      "time": "Hora",
+      "startDate": "Data de Início",
+      "endDate": "Data de Fim",
+      "notSet": "Não definido"
+    },
+    "location": {
+      "title": "Localização"
+    },
+    "goals": {
+      "title": "Metas",
+      "dailyGoal": "Meta Diária",
+      "additionalGoal": "Meta Adicional"
+    },
+    "completedToday": "Concluído Hoje",
+    "markAsCompleted": "Marcar como Concluído"
   }
 }

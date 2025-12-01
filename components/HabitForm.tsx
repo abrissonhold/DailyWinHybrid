@@ -15,6 +15,7 @@ import {
 import { Frequency, Habit, Priority, formatDate, formatTime } from "../types/habits";
 import { getPriorityColor } from "../constants/theme";
 import MapPicker from './MapPicker';
+import { useTranslation } from 'react-i18next';
 
 type HabitFormProps = {
     habit?: Habit | null;
@@ -28,6 +29,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
     onCancel,
 }) => {
     const theme = useTheme();
+    const { t, i18n } = useTranslation();
 
     const [name, setName] = useState(habit?.name ?? "");
     const [category, setCategory] = useState(habit?.category ?? "");
@@ -59,15 +61,23 @@ export const HabitForm: React.FC<HabitFormProps> = ({
     const [timePickerOpen, setTimePickerOpen] = useState(false);
 
     const categories = [
-        "Salud",
-        "Productividad",
-        "Finanzas",
-        "Aprendizaje",
-        "Relaciones",
-        "Hobbies",
+        t('habitForm.categories.health'),
+        t('habitForm.categories.productivity'),
+        t('habitForm.categories.finances'),
+        t('habitForm.categories.learning'),
+        t('habitForm.categories.relationships'),
+        t('habitForm.categories.hobbies'),
     ];
 
-    const daysLabels = ["L", "M", "X", "J", "V", "S", "D"];
+    const daysLabels = [
+        t('weekdays.mon'),
+        t('weekdays.tue'),
+        t('weekdays.wed'),
+        t('weekdays.thu'),
+        t('weekdays.fri'),
+        t('weekdays.sat'),
+        t('weekdays.sun')
+    ];
 
     const toggleWeekDay = (day: string) => {
         setSelectedDays((prev) =>
@@ -105,7 +115,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
             <Appbar.Header elevated>
                 <Appbar.BackAction onPress={onCancel} />
                 <Appbar.Content
-                    title={isEditMode ? "Editar hábito" : "Nuevo hábito"}
+                    title={isEditMode ? t('habitForm.editTitle') : t('habitForm.newTitle')}
                 />
                 <Appbar.Action
                     icon="check"
@@ -119,12 +129,12 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* Información básica */}
-                <SectionTitle text="Información básica" />
+                <SectionTitle text={t('habitForm.basicInfo.title')} />
 
                 <TextInput
                     mode="outlined"
-                    label="Nombre del hábito *"
-                    placeholder="Ej: Hacer ejercicio"
+                    label={t('habitForm.basicInfo.nameLabel')}
+                    placeholder={t('habitForm.basicInfo.namePlaceholder')}
                     value={name}
                     onChangeText={setName}
                     style={styles.fullWidth}
@@ -140,7 +150,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                             marginBottom: 8,
                         }}
                     >
-                        Categoría
+                        {t('habitForm.category.title')}
                     </Text>
 
                     <View style={styles.row}>
@@ -169,7 +179,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 </View>
 
                 {/* Prioridad */}
-                <SectionTitle text="Prioridad" />
+                <SectionTitle text={t('habitForm.priority.title')} />
                 <View style={styles.row}>
                     {Object.values(Priority).map((priority) => (
                         <PriorityChip
@@ -183,7 +193,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 </View>
 
                 {/* Frecuencia */}
-                <SectionTitle text="Frecuencia" />
+                <SectionTitle text={t('habitForm.frequency.title')} />
                 <View style={styles.row}>
                     {Object.values(Frequency).map((freq) => (
                         <FrequencyChip
@@ -200,7 +210,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 {selectedFrequency === Frequency.WEEKLY && (
                     <>
                         <View style={{ height: 16 }} />
-                        <SectionTitle text="Días de la semana" />
+                        <SectionTitle text={t('habitForm.weekdays.title')} />
                         <View style={styles.row}>
                             {daysLabels.map((day) => (
                                 <DayOfWeekChip
@@ -216,12 +226,12 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 )}
 
                 {/* Período */}
-                <SectionTitle text="Período" />
+                <SectionTitle text={t('habitForm.period.title')} />
                 <View style={styles.row}>
                     <TextInput
                         mode="outlined"
-                        label="Fecha de inicio"
-                        placeholder="Seleccionar"
+                        label={t('habitForm.period.startDateLabel')}
+                        placeholder={t('habitForm.period.selectPlaceholder')}
                         value={formatDate(startDate)}
                         style={styles.flex1}
                         right={
@@ -235,8 +245,8 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                     <View style={{ width: 12 }} />
                     <TextInput
                         mode="outlined"
-                        label="Fecha de fin"
-                        placeholder="Opcional"
+                        label={t('habitForm.period.endDateLabel')}
+                        placeholder={t('habitForm.period.optionalPlaceholder')}
                         value={formatDate(endDate)}
                         style={styles.flex1}
                         right={
@@ -251,7 +261,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
 
                 {/* Date pickers */}
                 <DatePickerModal
-                    locale="es"
+                    locale={i18n.language}
                     mode="single"
                     visible={startDateOpen}
                     onDismiss={() => setStartDateOpen(false)}
@@ -262,7 +272,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                     }}
                 />
                 <DatePickerModal
-                    locale="es"
+                    locale={i18n.language}
                     mode="single"
                     visible={endDateOpen}
                     onDismiss={() => setEndDateOpen(false)}
@@ -274,11 +284,11 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 />
 
                 {/* Recordatorio */}
-                <SectionTitle text="Recordatorio" />
+                <SectionTitle text={t('habitForm.reminder.title')} />
                 <TextInput
                     mode="outlined"
-                    label="Hora"
-                    placeholder="Seleccionar hora"
+                    label={t('habitForm.reminder.timeLabel')}
+                    placeholder={t('habitForm.reminder.timePlaceholder')}
                     value={time}
                     style={styles.fullWidth}
                     right={
@@ -303,34 +313,34 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                     }}
                     hours={new Date().getHours()}
                     minutes={new Date().getMinutes()}
-                    locale="es"
+                    locale={i18n.language}
                 />
 
                 {/* Objetivos */}
-                <SectionTitle text="Objetivos" />
+                <SectionTitle text={t('habitForm.goals.title')} />
                 <TextInput
                     mode="outlined"
-                    label="Objetivo diario"
-                    placeholder="Ej: 30 minutos"
+                    label={t('habitForm.goals.dailyGoalLabel')}
+                    placeholder={t('habitForm.goals.dailyGoalPlaceholder')}
                     value={dailyGoal}
                     onChangeText={setDailyGoal}
                     style={styles.fullWidth}
                 />
                 <TextInput
                     mode="outlined"
-                    label="Objetivo adicional"
-                    placeholder="Ej: Perder 5kg en 3 meses"
+                    label={t('habitForm.goals.additionalGoalLabel')}
+                    placeholder={t('habitForm.goals.additionalGoalPlaceholder')}
                     value={additionalGoal}
                     onChangeText={setAdditionalGoal}
                     style={styles.fullWidth}
                 />
 
                 {/* Notas */}
-                <SectionTitle text="Notas" />
+                <SectionTitle text={t('habitForm.notes.title')} />
                 <TextInput
                     mode="outlined"
-                    label="Descripción"
-                    placeholder="Agrega notas sobre este hábito"
+                    label={t('habitForm.notes.descriptionLabel')}
+                    placeholder={t('habitForm.notes.descriptionPlaceholder')}
                     value={description}
                     onChangeText={setDescription}
                     style={styles.fullWidth}
@@ -339,7 +349,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({
                 />
 
                 {/* Ubicación */}
-                <SectionTitle text="Ubicación" />
+                <SectionTitle text={t('habitForm.location.title')} />
 
                 <MapPicker location={location} setLocation={setLocation} />
 
@@ -405,12 +415,13 @@ const FrequencyChip: React.FC<{
     style?: any;
 }> = ({ frequency, selected, onPress, style }) => {
     const theme = useTheme();
+    const { t } = useTranslation();
     const label =
         frequency === Frequency.DAILY
-            ? "Diaria"
+            ? t('habitForm.frequency.daily')
             : frequency === Frequency.WEEKLY
-                ? "Semanal"
-                : "Mensual";
+                ? t('habitForm.frequency.weekly')
+                : t('habitForm.frequency.monthly');
 
     return (
         <Surface
@@ -450,11 +461,12 @@ const PriorityChip: React.FC<{
     style?: any;
 }> = ({ priority, selected, onPress, style }) => {
     const { paperTheme } = useThemeContext();
+    const { t } = useTranslation();
     const color = getPriorityColor(priority, paperTheme);
     const label = {
-        [Priority.LOW]: "Baja",
-        [Priority.MEDIUM]: "Media",
-        [Priority.HIGH]: "Alta",
+        [Priority.LOW]: t('habitForm.priority.low'),
+        [Priority.MEDIUM]: t('habitForm.priority.medium'),
+        [Priority.HIGH]: t('habitForm.priority.high'),
     }[priority];
 
     return (

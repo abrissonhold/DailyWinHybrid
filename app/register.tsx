@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +11,7 @@ import { useThemeContext } from '../context/ThemeProvider';
 import { auth } from '../services/firebase';
 
 const RegisterScreen = () => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,7 +24,7 @@ const RegisterScreen = () => {
 
   const handleRegister = () => {
     if (!name || !lastName || !email || !password) {
-        setAlertMessage('Por favor, completa todos los campos.');
+        setAlertMessage(t('register.alerts.missingFields'));
         setAlertVisible(true);
         return;
     }
@@ -41,24 +43,24 @@ const RegisterScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <ThemedText variant="headlineLarge" style={styles.title}>
-            Crear Cuenta
+            {t('register.title')}
         </ThemedText>
         <TextInput
-            label="Nombre"
+            label={t('register.nameLabel')}
             value={name}
             onChangeText={setName}
             style={styles.input}
             mode="outlined"
         />
         <TextInput
-            label="Apellido"
+            label={t('register.lastNameLabel')}
             value={lastName}
             onChangeText={setLastName}
             style={styles.input}
             mode="outlined"
         />
         <TextInput
-            label="Email"
+            label={t('register.emailLabel')}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -67,7 +69,7 @@ const RegisterScreen = () => {
             mode="outlined"
         />
         <TextInput
-            label="Contraseña"
+            label={t('register.passwordLabel')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!passwordVisible}
@@ -81,15 +83,15 @@ const RegisterScreen = () => {
             }
         />
         <Button mode="contained" onPress={handleRegister} style={styles.button}>
-            Registrarse
+            {t('register.registerButton')}
         </Button>
         <Button onPress={() => router.push('/login')} style={styles.button}>
-            ¿Ya tienes una cuenta? Inicia Sesión
+            {t('register.loginButton')}
         </Button>
       </View>
       <CustomAlert
         visible={alertVisible}
-        title="Error"
+        title={t('register.alerts.errorTitle')}
         message={alertMessage}
         onDismiss={() => setAlertVisible(false)} 
         buttons={[]}      

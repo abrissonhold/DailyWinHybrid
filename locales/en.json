@@ -2,15 +2,65 @@
   "home": {
     "title": "Your Habits",
     "greeting": "Hello, {{email}}",
-    "keepItUp": "Keep it up!",
-    "completedHabits": "You completed {{completed}} of {{total}} habits",
-    "noHabits": "You have no habits yet",
-    "createFirstHabit": "Create your first habit and start your journey to a better version of you!",
-    "habit": "Habit"
+    "user": "User",
+    "progress": {
+      "title": "Keep it up!",
+      "text": "You completed {{completed}} of {{total}} habits"
+    },
+    "empty": {
+      "title": "You have no habits yet",
+      "text": "Create your first habit and start your journey to a better version of you!"
+    },
+    "habitCard": {
+      "habit": "Habit"
+    },
+    "alert": {
+      "wellDone": "Well done!",
+      "completedHabit": "You have completed \"{{habitName}}\"",
+      "error": "Error",
+      "updateFailed": "Could not update habit"
+    }
+  },
+  "login": {
+    "title": "Welcome",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "registerButton": "Don't have an account? Register",
+    "alerts": {
+      "missingFields": "Please enter your email and password.",
+      "errorTitle": "Error"
+    }
+  },
+  "register": {
+    "title": "Create Account",
+    "nameLabel": "Name",
+    "lastNameLabel": "Last Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "registerButton": "Register",
+    "loginButton": "Already have an account? Login",
+    "alerts": {
+      "missingFields": "Please fill in all fields.",
+      "errorTitle": "Error"
+    }
   },
   "settings": {
     "title": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "logoutError": "Error",
+    "general": {
+      "title": "General",
+      "profile": "Profile",
+      "notifications": "Notifications"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "language": "Language"
+    }
   },
   "calendar": {
     "title": "Calendar",
@@ -21,7 +71,89 @@
     "days": "days",
     "noHabitsForDay": "No habits for this day",
     "noHabitsYet": "📝 You have no habits yet.",
-    "createFirstHabit": "Create your first habit and start your journey!"
+    "createFirstHabit": "Create your first habit and start your journey!",
+    "toggleErrorTitle": "Error",
+    "toggleErrorMessage": "Could not update habit."
+  },
+  "addHabit": {
+    "alert": {
+      "errorTitle": "Error",
+      "loginRequired": "You must be logged in to add a habit.",
+      "unknownError": "An unknown error occurred."
+    }
+  },
+  "editHabit": {
+    "loading": "Loading habit...",
+    "notFound": {
+      "title": "Error",
+      "message": "Habit not found."
+    },
+    "saveError": {
+      "title": "Error",
+      "unknown": "An unknown error occurred."
+    }
+  },
+  "habitForm": {
+    "editTitle": "Edit Habit",
+    "newTitle": "New Habit",
+    "basicInfo": {
+      "title": "Basic Information",
+      "nameLabel": "Habit Name *",
+      "namePlaceholder": "e.g., Exercise"
+    },
+    "category": {
+      "title": "Category",
+      "categories": {
+        "health": "Health",
+        "productivity": "Productivity",
+        "finances": "Finances",
+        "learning": "Learning",
+        "relationships": "Relationships",
+        "hobbies": "Hobbies"
+      }
+    },
+    "priority": {
+      "title": "Priority",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "frequency": {
+      "title": "Frequency",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "weekdays": {
+      "title": "Days of the week"
+    },
+    "period": {
+      "title": "Period",
+      "startDateLabel": "Start Date",
+      "endDateLabel": "End Date",
+      "selectPlaceholder": "Select",
+      "optionalPlaceholder": "Optional"
+    },
+    "reminder": {
+      "title": "Reminder",
+      "timeLabel": "Time",
+      "timePlaceholder": "Select time"
+    },
+    "goals": {
+      "title": "Goals",
+      "dailyGoalLabel": "Daily Goal",
+      "dailyGoalPlaceholder": "e.g., 30 minutes",
+      "additionalGoalLabel": "Additional Goal",
+      "additionalGoalPlaceholder": "e.g., Lose 5kg in 3 months"
+    },
+    "notes": {
+      "title": "Notes",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Add notes about this habit"
+    },
+    "location": {
+      "title": "Location"
+    }
   },
   "weekdays": {
     "sun": "S",
@@ -34,18 +166,84 @@
   },
   "stats": {
     "title": "Your Stats",
-    "totalHabits": "Total Habits",
-    "completedHabits": "Completed Habits",
-    "completionRate": "Completion Rate",
-    "byCategory": "By Category",
-    "last7Days": "Last 7 Days"
+    "empty": {
+      "title": "No stats yet",
+      "text": "Create some habits and start completing them to see your stats"
+    },
+    "summary": {
+      "totalHabits": "Total Habits",
+      "completed": "Completed",
+      "averageStreak": "Average Streak",
+      "todayRate": "Today's Rate"
+    },
+    "bestStreak": {
+      "title": "Best Streak"
+    },
+    "last7Days": {
+      "title": "Last 7 days"
+    },
+    "byCategory": {
+      "title": "By Category"
+    },
+    "byPriority": {
+      "title": "By Priority"
+    },
+    "byFrequency": {
+      "title": "By Frequency"
+    },
+    "topHabits": {
+      "title": "Top 3 Habits"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    }
   },
   "habitDetails": {
-    "editHabit": "Edit Habit",
-    "deleteHabit": "Delete Habit",
-    "confirmDeleteTitle": "Confirm Deletion",
-    "confirmDeleteMessage": "Are you sure you want to delete this habit? This action cannot be undone.",
-    "cancel": "Cancel",
-    "delete": "Delete"
+    "loading": "Loading...",
+    "notFound": {
+      "title": "Error",
+      "message": "Habit not found."
+    },
+    "deleteAlert": {
+      "title": "Delete Habit",
+      "message": "Are you sure you want to delete this habit?",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "errorAlert": {
+      "title": "Error",
+      "ok": "OK"
+    },
+    "details": {
+      "title": "Details",
+      "streak": "Streak",
+      "days": "{{count}} days",
+      "reminders": "Reminders",
+      "daysOfWeek": "Days",
+      "priority": "Priority",
+      "frequency": "Frequency",
+      "time": "Time",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "notSet": "Not set"
+    },
+    "location": {
+      "title": "Location"
+    },
+    "goals": {
+      "title": "Goals",
+      "dailyGoal": "Daily Goal",
+      "additionalGoal": "Additional Goal"
+    },
+    "completedToday": "Completed Today",
+    "markAsCompleted": "Mark as Completed"
   }
 }
