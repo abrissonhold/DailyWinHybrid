@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Button } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import ThemedText from './ThemedText';
 
 interface CameraModalProps {
   onPictureTaken: (uri: string) => void;
@@ -27,16 +28,18 @@ const CameraModal = ({ onPictureTaken, onClose }: CameraModalProps) => {
   };
 
   if (!permission) {
+    // Camera permissions are still loading
     return <View />;
   }
 
   if (!permission.granted) {
+    // Camera permissions are not granted yet
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+        <ThemedText style={{ textAlign: 'center' }}>We need your permission to show the camera</ThemedText>
         <Button onPress={requestPermission} title="grant permission" />
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.text}>Close</Text>
+            <ThemedText style={styles.text}>Close</ThemedText>
         </TouchableOpacity>
       </View>
     );
@@ -47,12 +50,12 @@ const CameraModal = ({ onPictureTaken, onClose }: CameraModalProps) => {
       <CameraView style={styles.camera} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.text}>Take Picture</Text>
+            <ThemedText style={styles.text}>Take Picture</ThemedText>
           </TouchableOpacity>
         </View>
       </CameraView>
       <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-        <Text style={styles.text}>Close</Text>
+        <ThemedText style={styles.text}>Close</ThemedText>
       </TouchableOpacity>
     </View>
   );

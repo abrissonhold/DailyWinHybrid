@@ -1,40 +1,44 @@
-
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Modal, Portal, Text, Button, Card } from 'react-native-paper';
+import { Button, Card, Modal, Portal } from 'react-native-paper';
 import { useThemeContext } from '../context/ThemeProvider';
+import ThemedText from './ThemedText';
 
-type CustomAlertProps = {
+interface AlertButton {
+    text: string;
+    onPress: () => void;
+    style?: 'cancel' | 'destructive' | 'default';
+}
+
+interface CustomAlertProps {
     visible: boolean;
     title: string;
     message: string;
-    buttons: { text: string; onPress: () => void; style?: 'cancel' | 'destructive' }[];
+    buttons: AlertButton[];
     onDismiss: () => void;
-};
+}
 
-export const CustomAlert: React.FC<CustomAlertProps> = ({
+const CustomAlert = ({
     visible,
     title,
     message,
     buttons,
     onDismiss,
-}) => {
+}: CustomAlertProps) => {
     const { paperTheme } = useThemeContext();
+    const styles = themedStyles(paperTheme);
 
     return (
         <Portal>
             <Modal
                 visible={visible}
                 onDismiss={onDismiss}
-                contentContainerStyle={[
-                    styles.modalContainer,
-                    { backgroundColor: paperTheme.colors.surface },
-                ]}
+                contentContainerStyle={styles.container}
             >
                 <Card>
-                    <Card.Title title={title} titleStyle={{ color: paperTheme.colors.onSurface }} />
                     <Card.Content>
-                        <Text style={{ color: paperTheme.colors.onSurfaceVariant }}>{message}</Text>
+                        <ThemedText style={styles.title}>{title}</ThemedText>
+                        <ThemedText style={styles.message}>{message}</ThemedText>
                     </Card.Content>
                     <Card.Actions>
                         {buttons.map((button, index) => (
@@ -57,10 +61,24 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
     );
 };
 
-const styles = StyleSheet.create({
-    modalContainer: {
-        padding: 20,
-        margin: 20,
-        borderRadius: 10,
-    },
-});
+const themedStyles = (theme: any) =>
+    StyleSheet.create({
+        container: {
+            padding: 20,
+            margin: 20,
+            borderRadius: 10,
+        },
+        title: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 10,
+            color: theme.colors.text,
+        },
+        message: {
+            fontSize: 16,
+            marginBottom: 20,
+            color: theme.colors.text,
+        },
+    });
+
+export default CustomAlert;

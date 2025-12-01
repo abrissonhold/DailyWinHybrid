@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Appbar, Button, Card, Chip, Divider, FAB, Title, MD3Theme } from 'react-native-paper';
 import MapPicker from '../../../components/MapPicker';
-import { CustomAlert } from '../../../components/CustomAlert';
+import CustomAlert from '../../../components/CustomAlert';
 import { useThemeContext } from '../../../context/ThemeProvider';
 import { db } from '../../../services/firebase';
 import { Habit, isCompletedToday, markAsCompleted, unmarkCompleted } from '../../../types/habits';

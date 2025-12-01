@@ -1,14 +1,15 @@
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
+import ThemedText from '../../components/ThemedText';
+import { TAB_BAR_HEIGHT } from '../../constants/styles';
+import { hexToRgba } from '../../constants/theme';
 import { useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
 import { Frequency, Habit, Priority, formatDate, isScheduledForToday } from '../../types/habits';
 import { Theme as NavTheme } from '@react-navigation/native';
 import { MD3Theme } from 'react-native-paper';
-import { hexToRgba } from '../../constants/theme';
-import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -39,7 +40,7 @@ const StatsScreen = () => {
       acc[habit.category] = (acc[habit.category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-
+    
     const colors = [
       paperTheme.colors.primary,
       paperTheme.colors.secondary,
@@ -85,7 +86,7 @@ const StatsScreen = () => {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = formatDate(date);
-      last7Days.push(dateStr.substring(5));
+      last7Days.push(dateStr.substring(5)); 
       const completedCount = habits.filter(habit => habit.completedDates.includes(dateStr)).length;
       completionCounts.push(completedCount);
     }
@@ -127,9 +128,9 @@ const StatsScreen = () => {
   if (habits.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyIcon}>📊</Text>
-        <Text style={styles.emptyTitle}>No hay estadísticas aún</Text>
-        <Text style={styles.emptyText}>Crea algunos hábitos y comienza a completarlos para ver tus estadísticas</Text>
+        <ThemedText style={styles.emptyIcon}>📊</ThemedText>
+        <ThemedText style={styles.emptyTitle}>No hay estadísticas aún</ThemedText>
+        <ThemedText style={styles.emptyText}>Crea algunos hábitos y comienza a completarlos para ver tus estadísticas</ThemedText>
       </View>
     );
   }
@@ -138,49 +139,49 @@ const StatsScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>📊 Tus Estadísticas</Text>
+      <ThemedText style={styles.title}>📊 Tus Estadísticas</ThemedText>
 
       <View style={styles.summaryContainer}>
-        <View style={styles.summaryCard}><Text style={styles.summaryNumber}>{habits.length}</Text><Text style={styles.summaryLabel}>Total Hábitos</Text></View>
-        <View style={styles.summaryCard}><Text style={styles.summaryNumber}>{getTotalCompletions()}</Text><Text style={styles.summaryLabel}>Completados</Text></View>
-        <View style={styles.summaryCard}><Text style={styles.summaryNumber}>{getAverageStreak()}</Text><Text style={styles.summaryLabel}>Racha Media</Text></View>
-        <View style={styles.summaryCard}><Text style={styles.summaryNumber}>{getCompletionRate()}%</Text><Text style={styles.summaryLabel}>Tasa Hoy</Text></View>
+        <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{habits.length}</ThemedText><ThemedText style={styles.summaryLabel}>Total Hábitos</ThemedText></View>
+        <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getTotalCompletions()}</ThemedText><ThemedText style={styles.summaryLabel}>Completados</ThemedText></View>
+        <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getAverageStreak()}</ThemedText><ThemedText style={styles.summaryLabel}>Racha Media</ThemedText></View>
+        <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getCompletionRate()}%</ThemedText><ThemedText style={styles.summaryLabel}>Tasa Hoy</ThemedText></View>
       </View>
 
       <View style={styles.bestStreakContainer}>
-        <Text style={styles.sectionTitle}>Mejor Racha</Text>
-        <View style={styles.bestStreakCard}><Text style={styles.bestStreakNumber}>{bestStreak.streak}</Text><Text style={styles.bestStreakName}>{bestStreak.name}</Text></View>
+        <ThemedText style={styles.sectionTitle}>Mejor Racha</ThemedText>
+        <View style={styles.bestStreakCard}><ThemedText style={styles.bestStreakNumber}>{bestStreak.streak}</ThemedText><ThemedText style={styles.bestStreakName}>{bestStreak.name}</ThemedText></View>
       </View>
 
       <View style={styles.chartContainer}>
-        <Text style={styles.sectionTitle}>Últimos 7 días</Text>
+        <ThemedText style={styles.sectionTitle}>Últimos 7 días</ThemedText>
         <LineChart data={getLast7DaysProgress()} width={screenWidth - 50} height={220} chartConfig={chartConfig} bezier style={styles.chart} fromZero />
       </View>
 
       {getCategoryStats().length > 0 && (
         <View style={styles.chartContainer}>
-          <Text style={styles.sectionTitle}>Por Categoría</Text>
+          <ThemedText style={styles.sectionTitle}>Por Categoría</ThemedText>
           <PieChart data={getCategoryStats()} width={screenWidth - 50} height={220} chartConfig={chartConfig} accessor="population" backgroundColor="transparent" paddingLeft="15" absolute style={styles.chart} />
         </View>
       )}
 
       <View style={styles.chartContainer}>
-        <Text style={styles.sectionTitle}>Por Prioridad</Text>
+        <ThemedText style={styles.sectionTitle}>Por Prioridad</ThemedText>
         <BarChart data={getPriorityStats()} width={screenWidth - 50} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={chartConfig} style={styles.chart} showValuesOnTopOfBars fromZero />
       </View>
 
       <View style={styles.chartContainer}>
-        <Text style={styles.sectionTitle}>Por Frecuencia</Text>
-        <BarChart data={getFrequencyStats()} width={screenWidth - 50} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={{ ...chartConfig, color: (opacity = 1) => `rgba(${parseInt(paperTheme.colors.secondary.slice(1, 3), 16)}, ${parseInt(paperTheme.colors.secondary.slice(3, 5), 16)}, ${parseInt(paperTheme.colors.secondary.slice(5, 7), 16)}, ${opacity})` }} style={styles.chart} showValuesOnTopOfBars fromZero />
+        <ThemedText style={styles.sectionTitle}>Por Frecuencia</ThemedText>
+        <BarChart data={getFrequencyStats()} width={screenWidth - 50} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={{...chartConfig, color: (opacity = 1) => `rgba(${parseInt(paperTheme.colors.secondary.slice(1, 3), 16)}, ${parseInt(paperTheme.colors.secondary.slice(3, 5), 16)}, ${parseInt(paperTheme.colors.secondary.slice(5, 7), 16)}, ${opacity})`}} style={styles.chart} showValuesOnTopOfBars fromZero />
       </View>
 
       <View style={styles.topHabitsContainer}>
-        <Text style={styles.sectionTitle}>🏆 Top 3 Hábitos</Text>
+        <ThemedText style={styles.sectionTitle}>🏆 Top 3 Hábitos</ThemedText>
         {habits.sort((a, b) => b.streak - a.streak).slice(0, 3).map((habit, index) => (
           <View key={habit.id} style={styles.topHabitCard}>
-            <Text style={styles.topHabitRank}>#{index + 1}</Text>
-            <View style={styles.topHabitInfo}><Text style={styles.topHabitName}>{habit.name}</Text><Text style={styles.topHabitCategory}>{habit.category}</Text></View>
-            <Text style={styles.topHabitStreak}>🔥 {habit.streak}</Text>
+            <ThemedText style={styles.topHabitRank}>#{index + 1}</ThemedText>
+            <View style={styles.topHabitInfo}><ThemedText style={styles.topHabitName}>{habit.name}</ThemedText><ThemedText style={styles.topHabitCategory}>{habit.category}</ThemedText></View>
+            <ThemedText style={styles.topHabitStreak}>🔥 {habit.streak}</ThemedText>
           </View>
         ))}
       </View>

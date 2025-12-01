@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Text } from 'react-native';
+import { Alert, View } from 'react-native';
 import { HabitForm } from '../../../../components/HabitForm';
+import ThemedText from '../../../../components/ThemedText';
 import { db } from '../../../../services/firebase';
 import { Habit } from '../../../../types/habits';
 
@@ -45,7 +46,7 @@ const EditHabitScreen = () => {
   if (!habit) {
     return (
       <View>
-        <Text>Cargando hábito...</Text>
+        <ThemedText>Cargando hábito...</ThemedText>
       </View>
     );
   }

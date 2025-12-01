@@ -3,13 +3,14 @@ import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Button, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import i18n from '../../services/i18n';
+import { Alert, Button, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import ThemedText from '../../components/ThemedText';
+import { TAB_BAR_HEIGHT } from '../../constants/styles';
 import { useThemeContext } from '../../context/ThemeProvider';
+import i18n from '../../services/i18n';
 import { auth } from '../../services/firebase';
 import { Theme as NavTheme } from '@react-navigation/native';
 import { MD3Theme } from 'react-native-paper';
-import { TAB_BAR_HEIGHT } from '../../constants/styles';
 
 const SettingsScreen = () => {
   const { t } = useTranslation();
@@ -38,9 +39,9 @@ const SettingsScreen = () => {
     <TouchableOpacity style={styles.optionRow} onPress={onPress} disabled={!onPress}>
       <View style={styles.optionInfo}>
         <Ionicons name={icon} size={24} color={navTheme.colors.primary} style={styles.optionIcon} />
-        <Text style={styles.optionTitle}>{title}</Text>
+        <ThemedText style={styles.optionTitle}>{title}</ThemedText>
       </View>
-      {value && <Text style={styles.optionValue}>{value}</Text>}
+      {value && <ThemedText style={styles.optionValue}>{value}</ThemedText>}
       {children}
     </TouchableOpacity>
   );
@@ -52,7 +53,7 @@ const SettingsScreen = () => {
         <TouchableOpacity style={styles.headerButton}>
           <Ionicons name="menu" size={28} color={navTheme.colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
+        <ThemedText style={styles.headerTitle}>{t('settings.title')}</ThemedText>
         <TouchableOpacity style={styles.headerButton}>
           <Ionicons name="ellipsis-vertical" size={24} color={navTheme.colors.text} />
         </TouchableOpacity>
@@ -60,41 +61,41 @@ const SettingsScreen = () => {
 
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>General</Text>
+          <ThemedText style={styles.sectionTitle}>General</ThemedText>
           <OptionRow icon="person-circle-outline" title="Perfil" onPress={() => { /* Navigate to profile */ }} />
           <OptionRow icon="notifications-outline" title="Notificaciones" onPress={() => { /* Navigate to notifications */ }} />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Apariencia</Text>
-          <OptionRow icon="color-palette-outline" title="Tema">
-            <View style={styles.themeSelector}>
-              <TouchableOpacity
-                style={[styles.themeButton, colorScheme === 'light' && styles.themeButtonActive]}
-                onPress={() => setTheme('light')}
-              >
-                <Text style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>Claro</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.themeButton, colorScheme === 'dark' && styles.themeButtonActive]}
-                onPress={() => setTheme('dark')}
-              >
-                <Text style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>Oscuro</Text>
-              </TouchableOpacity>
-            </View>
-          </OptionRow>
-          <OptionRow icon="language-outline" title="Idioma">
-            <View style={styles.languageSelector}>
-              <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
-              <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
-              <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? navTheme.colors.primary : navTheme.colors.text} />
-            </View>
-          </OptionRow>
-        </View>
+        <ThemedText style={styles.sectionTitle}>Apariencia</ThemedText>
+        <OptionRow icon="color-palette-outline" title="Tema">
+          <View style={styles.themeSelector}>
+            <TouchableOpacity
+              style={[styles.themeButton, colorScheme === 'light' && styles.themeButtonActive]}
+              onPress={() => setTheme('light')}
+            >
+              <ThemedText style={[styles.themeButtonText, colorScheme === 'light' && styles.themeButtonTextActive]}>Claro</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.themeButton, colorScheme === 'dark' && styles.themeButtonActive]}
+              onPress={() => setTheme('dark')}
+            >
+              <ThemedText style={[styles.themeButtonText, colorScheme === 'dark' && styles.themeButtonTextActive]}>Oscuro</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </OptionRow>
+        <OptionRow icon="language-outline" title="Idioma">
+          <View style={styles.languageSelector}>
+             <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
+             <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
+             <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? navTheme.colors.primary : navTheme.colors.text} />
+          </View>
+        </OptionRow>
+      </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={22} color={paperTheme.colors.error} />
-          <Text style={styles.logoutButtonText}>{t('settings.logout')}</Text>
+          <ThemedText style={styles.logoutButtonText}>{t('settings.logout')}</ThemedText>
         </TouchableOpacity>
       </ScrollView>
     </View>
