@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Appbar , MD3Theme } from 'react-native-paper';
 import CustomAlert from '../../components/CustomAlert';
 import ThemedText from '../../components/ThemedText';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
@@ -12,7 +12,6 @@ import { useThemeContext } from '../../context/ThemeProvider';
 import i18n from '../../services/i18n';
 import { auth } from '../../services/firebase';
 import { Theme as NavTheme } from '@react-navigation/native';
-import { MD3Theme } from 'react-native-paper';
 
 const SettingsScreen = () => {
   const { t } = useTranslation();
@@ -82,10 +81,25 @@ const SettingsScreen = () => {
           </View>
         </OptionRow>
         <OptionRow icon="language-outline" title={t('settings.appearance.language')}>
-          <View style={styles.languageSelector}>
-             <Button title="EN" onPress={() => i18n.changeLanguage('en')} color={i18n.language === 'en' ? navTheme.colors.primary : navTheme.colors.text} />
-             <Button title="ES" onPress={() => i18n.changeLanguage('es')} color={i18n.language === 'es' ? navTheme.colors.primary : navTheme.colors.text} />
-             <Button title="PT" onPress={() => i18n.changeLanguage('pt')} color={i18n.language === 'pt' ? navTheme.colors.primary : navTheme.colors.text} />
+        <View style={styles.themeSelector}>
+            <TouchableOpacity
+              style={[styles.themeButton, i18n.language === 'en' && styles.themeButtonActive]}
+              onPress={() => i18n.changeLanguage('en')}
+            >
+              <ThemedText style={[styles.themeButtonText, i18n.language === 'en' && styles.themeButtonTextActive]}>EN</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.themeButton, i18n.language === 'es' && styles.themeButtonActive]}
+              onPress={() => i18n.changeLanguage('es')}
+            >
+              <ThemedText style={[styles.themeButtonText, i18n.language === 'es' && styles.themeButtonTextActive]}>ES</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.themeButton, i18n.language === 'pt' && styles.themeButtonActive]}
+              onPress={() => i18n.changeLanguage('pt')}
+            >
+              <ThemedText style={[styles.themeButtonText, i18n.language === 'pt' && styles.themeButtonTextActive]}>PT</ThemedText>
+            </TouchableOpacity>
           </View>
         </OptionRow>
       </View>

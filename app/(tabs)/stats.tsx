@@ -1,26 +1,29 @@
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
+import { LayoutChangeEvent, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Appbar } from 'react-native-paper';
+import { Appbar, MD3Theme } from 'react-native-paper';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
 import ThemedText from '../../components/ThemedText';
 import { TAB_BAR_HEIGHT } from '../../constants/styles';
 import { hexToRgba } from '../../constants/theme';
-import { useThemeContext } from '../../context/ThemeProvider';
+import { AppTheme, useThemeContext } from '../../context/ThemeProvider';
 import { auth, db } from '../../services/firebase';
 import { Frequency, Habit, Priority, formatDate, isScheduledForToday } from '../../types/habits';
 import { Theme as NavTheme } from '@react-navigation/native';
-import { MD3Theme } from 'react-native-paper';
-
-const screenWidth = Dimensions.get('window').width;
 
 const StatsScreen = () => {
   const { t } = useTranslation();
   const { navTheme, paperTheme } = useThemeContext();
   const styles = themedStyles(navTheme, paperTheme);
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [chartWidth, setChartWidth] = useState(0);
   const userId = auth.currentUser?.uid;
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setChartWidth(width - 40); 
+  };
 
   useEffect(() => {
     if (!userId) return;
@@ -44,20 +47,13 @@ const StatsScreen = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    const colors = [
-      paperTheme.colors.primary,
-      paperTheme.colors.secondary,
-      paperTheme.colors.tertiary,
-      paperTheme.colors.error,
-      paperTheme.colors.surfaceVariant ?? paperTheme.colors.surface,
-      paperTheme.colors.primaryContainer
-    ];
+    const colors = paperTheme.colors.chartColors;
 
     return Object.keys(categoryCounts).map((category, index) => ({
       name: category,
       population: categoryCounts[category],
       color: colors[index % colors.length],
-      legendFontColor: navTheme.colors.text,
+      legendFontColor: paperTheme.colors.text,
       legendFontSize: 14,
     }));
   };
@@ -123,7 +119,7 @@ const StatsScreen = () => {
     backgroundGradientTo: navTheme.colors.card,
     decimalPlaces: 0,
     color: (opacity = 1) => hexToRgba(paperTheme.colors.primary, opacity),
-    labelColor: (opacity = 1) => hexToRgba(navTheme.colors.text, opacity),
+    labelColor: (opacity = 1) => hexToRgba(paperTheme.colors.text, opacity),
     style: { borderRadius: 16 },
     propsForDots: { r: '6', strokeWidth: '2', stroke: paperTheme.colors.primary }
   };
@@ -141,56 +137,60 @@ const StatsScreen = () => {
   const bestStreak = getBestStreak();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.container}>
-        <Appbar.Header>
-          <Appbar.Content title={t('stats.title')} />
-        </Appbar.Header>
-        </View>
-        <View style={styles.summaryContainer}>
-          <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{habits.length}</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.totalHabits')}</ThemedText></View>
-          <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getTotalCompletions()}</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.completed')}</ThemedText></View>
-          <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getAverageStreak()}</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.averageStreak')}</ThemedText></View>
-          <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getCompletionRate()}%</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.todayRate')}</ThemedText></View>
-        </View>
-
-        <View style={styles.bestStreakContainer}>
-          <ThemedText style={styles.sectionTitle}>{t('stats.bestStreak.title')}</ThemedText>
-          <View style={styles.bestStreakCard}><ThemedText style={styles.bestStreakNumber}>{bestStreak.streak}</ThemedText><ThemedText style={styles.bestStreakName}>{bestStreak.name}</ThemedText></View>
-        </View>
-
-        <View style={styles.chartContainer}>
-          <ThemedText style={styles.sectionTitle}>{t('stats.last7Days.title')}</ThemedText>
-          <LineChart data={getLast7DaysProgress()} width={screenWidth - 50} height={220} chartConfig={chartConfig} bezier style={styles.chart} fromZero />
-        </View>
-
-        {getCategoryStats().length > 0 && (
-          <View style={styles.chartContainer}>
-            <ThemedText style={styles.sectionTitle}>{t('stats.byCategory.title')}</ThemedText>
-            <PieChart data={getCategoryStats()} width={screenWidth - 50} height={220} chartConfig={chartConfig} accessor="population" backgroundColor="transparent" paddingLeft="15" absolute style={styles.chart} />
+    <ScrollView style={styles.container} onLayout={handleLayout} contentContainerStyle={styles.contentContainer}>
+      {chartWidth > 0 && (
+        <>
+          <View style={styles.container}>
+            <Appbar.Header>
+              <Appbar.Content title={t('stats.title')} />
+            </Appbar.Header>
           </View>
-        )}
+          <View style={styles.summaryContainer}>
+            <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{habits.length}</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.totalHabits')}</ThemedText></View>
+            <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getTotalCompletions()}</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.completed')}</ThemedText></View>
+            <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getAverageStreak()}</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.averageStreak')}</ThemedText></View>
+            <View style={styles.summaryCard}><ThemedText style={styles.summaryNumber}>{getCompletionRate()}%</ThemedText><ThemedText style={styles.summaryLabel}>{t('stats.summary.todayRate')}</ThemedText></View>
+          </View>
 
-        <View style={styles.chartContainer}>
-          <ThemedText style={styles.sectionTitle}>{t('stats.byPriority.title')}</ThemedText>
-          <BarChart data={getPriorityStats()} width={screenWidth - 50} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={chartConfig} style={styles.chart} showValuesOnTopOfBars fromZero />
-        </View>
+          <View style={styles.bestStreakContainer}>
+            <ThemedText style={styles.sectionTitle}>{t('stats.bestStreak.title')}</ThemedText>
+            <View style={styles.bestStreakCard}><ThemedText style={styles.bestStreakNumber}>{bestStreak.streak}</ThemedText><ThemedText style={styles.bestStreakName}>{bestStreak.name}</ThemedText></View>
+          </View>
 
-        <View style={styles.chartContainer}>
-          <ThemedText style={styles.sectionTitle}>{t('stats.byFrequency.title')}</ThemedText>
-          <BarChart data={getFrequencyStats()} width={screenWidth - 50} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={{ ...chartConfig, color: (opacity = 1) => `rgba(${parseInt(paperTheme.colors.secondary.slice(1, 3), 16)}, ${parseInt(paperTheme.colors.secondary.slice(3, 5), 16)}, ${parseInt(paperTheme.colors.secondary.slice(5, 7), 16)}, ${opacity})` }} style={styles.chart} showValuesOnTopOfBars fromZero />
-        </View>
+          <View style={styles.chartContainer}>
+            <ThemedText style={styles.sectionTitle}>{t('stats.last7Days.title')}</ThemedText>
+            <LineChart data={getLast7DaysProgress()} width={chartWidth} height={220} chartConfig={chartConfig} bezier style={styles.chart} fromZero />
+          </View>
 
-        <View style={styles.topHabitsContainer}>
-          <ThemedText style={styles.sectionTitle}>🏆 {t('stats.topHabits.title')}</ThemedText>
-          {habits.sort((a, b) => b.streak - a.streak).slice(0, 3).map((habit, index) => (
-            <View key={habit.id} style={styles.topHabitCard}>
-              <ThemedText style={styles.topHabitRank}>#{index + 1}</ThemedText>
-              <View style={styles.topHabitInfo}><ThemedText style={styles.topHabitName}>{habit.name}</ThemedText><ThemedText style={styles.topHabitCategory}>{habit.category}</ThemedText></View>
-              <ThemedText style={styles.topHabitStreak}>🔥 {habit.streak}</ThemedText>
+          {getCategoryStats().length > 0 && (
+            <View style={styles.chartContainer}>
+              <ThemedText style={styles.sectionTitle}>{t('stats.byCategory.title')}</ThemedText>
+              <PieChart data={getCategoryStats()} width={chartWidth} height={220} chartConfig={chartConfig} accessor="population" backgroundColor="transparent" paddingLeft="15" absolute style={styles.chart} />
             </View>
-          ))}
-        </View>
+          )}
+
+          <View style={styles.chartContainer}>
+            <ThemedText style={styles.sectionTitle}>{t('stats.byPriority.title')}</ThemedText>
+            <BarChart data={getPriorityStats()} width={chartWidth} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={chartConfig} style={styles.chart} showValuesOnTopOfBars fromZero />
+          </View>
+
+          <View style={styles.chartContainer}>
+            <ThemedText style={styles.sectionTitle}>{t('stats.byFrequency.title')}</ThemedText>
+            <BarChart data={getFrequencyStats()} width={chartWidth} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={{ ...chartConfig, color: (opacity = 1) => `rgba(${parseInt(paperTheme.colors.secondary.slice(1, 3), 16)}, ${parseInt(paperTheme.colors.secondary.slice(3, 5), 16)}, ${parseInt(paperTheme.colors.secondary.slice(5, 7), 16)}, ${opacity})` }} style={styles.chart} showValuesOnTopOfBars fromZero />
+          </View>
+
+          <View style={styles.topHabitsContainer}>
+            <ThemedText style={styles.sectionTitle}>{t('stats.topHabits.title')}</ThemedText>
+            {habits.sort((a, b) => b.streak - a.streak).slice(0, 3).map((habit, index) => (
+              <View key={habit.id} style={styles.topHabitCard}>
+                <ThemedText style={styles.topHabitRank}>#{index + 1}</ThemedText>
+                <View style={styles.topHabitInfo}><ThemedText style={styles.topHabitName}>{habit.name}</ThemedText><ThemedText style={styles.topHabitCategory}>{habit.category}</ThemedText></View>
+                <ThemedText style={styles.topHabitStreak}>{habit.streak}</ThemedText>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 };

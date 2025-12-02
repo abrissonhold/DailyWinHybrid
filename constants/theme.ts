@@ -2,8 +2,8 @@ import { DarkTheme as NDarkTheme, DefaultTheme as NavDefaultTheme } from '@react
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 
 export const baseColors = {
-    primary: '#7528a5ff',
-    accent: '#f5ba0cff',
+    primary: '#8a3cba',
+    accent: '#f7c325',
     success: '#4CAF50',
     streak: '#FF6B6B',
     priorityHigh: '#E53935',
@@ -22,19 +22,25 @@ export const lightThemeColors = {
     tabIconDefault: '#ccc',
     border: '#e0e0e0',
     notification: baseColors.primary,
+    chartColors: [
+        '#8a3cba', '#f7c325', '#4CAF50', '#FF6B6B', '#E53935', '#FB8C00'
+    ]
 };
 
 export const darkThemeColors = {
     ...NDarkTheme.colors,
     ...MD3DarkTheme.colors,
     ...baseColors,
-    background: '#121212',
-    card: '#1e1e1e',
+    background: '#1c1c1e',
+    card: '#2c2c2e',
     text: '#ffffff',
-    icon: '#aaaaaa',
+    icon: '#c7c7cc',
     tabIconDefault: '#555',
-    border: '#333333',
+    border: '#3a3a3c',
     notification: baseColors.primary,
+    chartColors: [
+        '#c792ea', '#ffd700', '#81c784', '#ef9a9a', '#ef5350', '#ffb74d'
+    ]
 };
 
 

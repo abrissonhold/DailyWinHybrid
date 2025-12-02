@@ -3,11 +3,11 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Appbar, Button, Card, Chip, Divider, FAB, Title, MD3Theme } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Appbar, Button, Card, Chip, Divider, FAB, Title, Text } from 'react-native-paper';
 import MapPicker from '../../../components/MapPicker';
 import CustomAlert from '../../../components/CustomAlert';
-import { useThemeContext } from '../../../context/ThemeProvider';
+import { AppTheme, useThemeContext } from '../../../context/ThemeProvider';
 import { db } from '../../../services/firebase';
 import { Habit, isCompletedToday, markAsCompleted, unmarkCompleted } from '../../../types/habits';
 import { TAB_BAR_HEIGHT } from '../../../constants/styles';
@@ -211,7 +211,7 @@ const HabitDetailScreen = () => {
   );
 };
 
-const createStyles = (theme: MD3Theme) => StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -238,6 +238,7 @@ const createStyles = (theme: MD3Theme) => StyleSheet.create({
   description: {
     fontSize: 16,
     lineHeight: 24,
+    color: theme.colors.text,
   },
   divider: {
     marginVertical: 8,
@@ -254,9 +255,11 @@ const createStyles = (theme: MD3Theme) => StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     flex: 1,
+    color: theme.colors.text,
   },
   infoValue: {
     fontSize: 16,
+    color: theme.colors.text,
   },
   completeButton: {
     marginTop: 16,

@@ -4,7 +4,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { NavLightTheme, NavDarkTheme, PaperLightTheme, PaperDarkTheme } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 
-type AppTheme = typeof PaperLightTheme;
+export type AppTheme = typeof PaperLightTheme;
 
 interface ThemeContextType {
   colorScheme: string;

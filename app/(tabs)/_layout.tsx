@@ -56,7 +56,7 @@ export default function TabLayout() {
                 name="home"
                 options={{
                     tabBarIcon: ({ color, focused }) => (
-                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
                         </View>
                     ),
@@ -66,7 +66,7 @@ export default function TabLayout() {
                 name="calendar"
                 options={{
                     tabBarIcon: ({ color, focused }) => (
-                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
                         </View>
                     ),
@@ -75,14 +75,18 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="addHabit"
                 options={{
-                    tabBarButton: () => <AddHabitButton />,
+                    tabBarButton: () => (
+                        <View style={{ flex: 1, alignItems: 'center' }}>
+                            <AddHabitButton />
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="stats"
                 options={{
                     tabBarIcon: ({ color, focused }) => (
-                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={24} color={color} />
                         </View>
                     ),
@@ -92,7 +96,7 @@ export default function TabLayout() {
                 name="settings"
                 options={{
                     tabBarIcon: ({ color, focused }) => (
-                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color} />
                         </View>
                     ),
